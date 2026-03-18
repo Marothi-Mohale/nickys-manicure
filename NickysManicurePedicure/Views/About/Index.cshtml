@@ -1,0 +1,37 @@
+@model NickysManicurePedicure.ViewModels.AboutPageViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">About Nicky</span>
+        <h1>Premium nail care shaped by experience, grace, and genuine client care.</h1>
+        <p>With more than 8 years of experience, Nicky has built a beauty service rooted in trust, precision, and a feminine, polished finish clients can feel proud of.</p>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-6">
+                <div class="info-panel h-100">
+                    <h2>A salon experience that feels personal</h2>
+                    <p>Nicky's Manicure & Pedicure was created for women who want more than a quick appointment. The focus is attentive service, calm professionalism, and consistently elegant results.</p>
+                    <p>Whether you are preparing for an event, maintaining your weekly polish, or simply investing in self-care, every visit is handled with care and respect for your time.</p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="info-panel h-100">
+                    <h2>What clients can expect</h2>
+                    <ul class="feature-list">
+                        <li>Thoughtful consultations and service recommendations</li>
+                        <li>Beautiful, wearable finishes with a luxury aesthetic</li>
+                        <li>Reliable communication and an easy booking process</li>
+                        <li>A clean, welcoming, trust-building environment</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@await Html.PartialAsync("_TestimonialsSection", Model.Testimonials)
+@await Html.PartialAsync("_ContactCallout")

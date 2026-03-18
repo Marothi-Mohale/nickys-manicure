@@ -1,0 +1,106 @@
+@using Microsoft.Extensions.Options
+@using NickysManicurePedicure.Models.Options
+@inject IOptions<BusinessProfileOptions> BusinessOptions
+@{
+    var business = BusinessOptions.Value;
+    var pageTitle = ViewData["Title"] as string;
+    var metaTitle = string.IsNullOrWhiteSpace(pageTitle) ? business.Name : $"{pageTitle} | {business.Name}";
+    var metaDescription = ViewData["Description"] as string ?? business.Tagline;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@metaTitle</title>
+    <meta name="description" content="@metaDescription" />
+    <meta name="theme-color" content="#1f1a1a" />
+    <meta property="og:title" content="@metaTitle" />
+    <meta property="og:description" content="@metaDescription" />
+    <meta property="og:type" content="website" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="site-header sticky-top">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark">N</span>
+                    <span>
+                        <span class="brand-title">@business.Name</span>
+                        <span class="brand-subtitle">Luxury nail care in Cape Town</span>
+                    </span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="About" asp-action="Index">About</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Services" asp-action="Index">Services</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Gallery" asp-action="Index">Gallery</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Contact" asp-action="Index">Contact</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-brand btn-brand-sm" asp-controller="Booking" asp-action="Index">Book Now</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="toast-stack">
+        @await Html.PartialAsync("_Notification")
+    </div>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <h2 class="footer-title">@business.Name</h2>
+                    <p class="footer-copy">@business.Tagline</p>
+                </div>
+                <div class="col-sm-6 col-lg-3">
+                    <h3 class="footer-heading">Visit</h3>
+                    <p class="footer-copy">@business.FullAddress</p>
+                </div>
+                <div class="col-sm-6 col-lg-2">
+                    <h3 class="footer-heading">Explore</h3>
+                    <ul class="footer-links">
+                        <li><a asp-controller="About" asp-action="Index">About</a></li>
+                        <li><a asp-controller="Services" asp-action="Index">Services</a></li>
+                        <li><a asp-controller="Gallery" asp-action="Index">Gallery</a></li>
+                        <li><a asp-controller="Contact" asp-action="Index">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3">
+                    <h3 class="footer-heading">Connect</h3>
+                    <ul class="footer-links">
+                        <li><a href="@business.PhoneHref">@business.Phone</a></li>
+                        <li><a href="mailto:@business.Email">@business.Email</a></li>
+                        <li><a href="@business.WhatsAppHref" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+                        <li><a asp-controller="Home" asp-action="Terms">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <span>&copy; @DateTime.UtcNow.Year @business.Name</span>
+                <span>Designed for trusted, premium beauty bookings.</span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,28 @@
+@model NickysManicurePedicure.ViewModels.GalleryPageViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">Gallery</span>
+        <h1>A gallery-ready space for elegant nail work and future signature sets.</h1>
+        <p>This page is designed to grow with the business and showcase future client work in a polished, premium way.</p>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="gallery-grid">
+            @foreach (var item in Model.GalleryItems)
+            {
+                <article class="gallery-card">
+                    <div class="gallery-art" aria-hidden="true"></div>
+                    <div class="gallery-body">
+                        <h2 class="h5">@item.Title</h2>
+                        <p>@item.Description</p>
+                    </div>
+                </article>
+            }
+        </div>
+    </div>
+</section>
+
+@await Html.PartialAsync("_ContactCallout")

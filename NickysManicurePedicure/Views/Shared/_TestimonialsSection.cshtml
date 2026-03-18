@@ -1,0 +1,25 @@
+@model IReadOnlyCollection<NickysManicurePedicure.Models.Entities.Testimonial>
+
+<section class="section-space bg-ivory">
+    <div class="container">
+        @await Html.PartialAsync("_SectionHeader", new NickysManicurePedicure.ViewModels.SectionHeaderViewModel
+        {
+            Eyebrow = "Client love",
+            Title = "Trusted by women who value polish, calm, and consistency",
+            Description = "Every appointment is designed to feel personal, polished, and worthy of your time."
+        })
+
+        <div class="row g-4">
+            @foreach (var testimonial in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <article class="testimonial-card h-100">
+                        <span class="testimonial-highlight">@testimonial.Highlight</span>
+                        <p class="testimonial-copy">“@testimonial.Review”</p>
+                        <strong class="testimonial-name">@testimonial.ClientName</strong>
+                    </article>
+                </div>
+            }
+        </div>
+    </div>
+</section>

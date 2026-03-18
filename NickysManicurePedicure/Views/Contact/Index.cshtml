@@ -1,0 +1,56 @@
+@model NickysManicurePedicure.ViewModels.ContactPageViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">Contact</span>
+        <h1>Reach out for service questions, bookings, and premium nail care support.</h1>
+        <p>Use the details below or send a message online. We will respond as quickly as possible.</p>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="contact-card h-100">
+                    <h2>Business details</h2>
+                    <ul class="contact-list">
+                        <li><strong>Phone:</strong> <a href="@Model.Business.PhoneHref">@Model.Business.Phone</a></li>
+                        <li><strong>Email:</strong> <a href="mailto:@Model.Business.Email">@Model.Business.Email</a></li>
+                        <li><strong>Address:</strong> @Model.Business.FullAddress</li>
+                    </ul>
+
+                    <h3>Business hours</h3>
+                    <ul class="feature-list">
+                        @foreach (var hour in Model.Business.BusinessHours)
+                        {
+                            <li>@hour</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="form-panel">
+                    <h2 class="h3 mb-3">Send a message</h2>
+                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-space pt-0">
+    <div class="container">
+        <div class="map-placeholder" role="img" aria-label="Map placeholder for 72 Main Road, Mowbray, Cape Town">
+            <div>
+                <span class="eyebrow">Map placeholder</span>
+                <h2 class="h3">72 Main Road, Mowbray, Cape Town</h2>
+                <p>Embed your preferred Google Maps or Apple Maps frame here when production hosting is configured.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

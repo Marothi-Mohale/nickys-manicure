@@ -1,0 +1,48 @@
+@model NickysManicurePedicure.ViewModels.InquiryFormViewModel
+
+<form asp-controller="Booking" asp-action="Submit" method="post" class="premium-form">
+    @Html.AntiForgeryToken()
+    <input asp-for="InquiryType" type="hidden" />
+    <input asp-for="SourcePage" type="hidden" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="FullName" class="form-label"></label>
+            <input asp-for="FullName" class="form-control" autocomplete="name" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <input asp-for="PhoneNumber" class="form-control" autocomplete="tel" />
+            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="email" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ServiceInterest" class="form-label"></label>
+            <input asp-for="ServiceInterest" class="form-control" placeholder="Luxury manicure, gel refresh, bridal prep..." />
+            <span asp-validation-for="ServiceInterest" class="text-danger small"></span>
+        </div>
+        @if (Model.InquiryType == NickysManicurePedicure.Models.Entities.InquiryType.Booking)
+        {
+            <div class="col-md-6">
+                <label asp-for="PreferredDate" class="form-label"></label>
+                <input asp-for="PreferredDate" class="form-control" />
+                <span asp-validation-for="PreferredDate" class="text-danger small"></span>
+            </div>
+        }
+        <div class="col-12">
+            <label asp-for="Message" class="form-label"></label>
+            <textarea asp-for="Message" class="form-control" rows="5"></textarea>
+            <span asp-validation-for="Message" class="text-danger small"></span>
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-brand btn-lg">@Model.SubmitLabel</button>
+        </div>
+    </div>
+</form>

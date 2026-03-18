@@ -1,0 +1,13 @@
+@model NickysManicurePedicure.Models.ErrorViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">Error</span>
+        <h1>Something unexpected happened.</h1>
+        <p>We could not complete that request. Please try again or contact the salon directly for assistance.</p>
+        @if (Model.ShowRequestId)
+        {
+            <p class="small text-muted mt-3">Reference: @Model.RequestId</p>
+        }
+    </div>
+</section>

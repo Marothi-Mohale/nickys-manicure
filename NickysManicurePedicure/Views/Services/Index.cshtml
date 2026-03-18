@@ -1,0 +1,54 @@
+@model NickysManicurePedicure.ViewModels.ServicesPageViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">Services</span>
+        <h1>Curated manicure and pedicure treatments for polished, modern women.</h1>
+        <p>Every service is delivered with attention to detail, lasting beauty, and a premium client experience.</p>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="row g-4">
+            @foreach (var service in Model.Services)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <article class="service-card h-100">
+                        <div class="service-meta">
+                            <span>@service.Duration</span>
+                            <span>@service.PriceFrom</span>
+                        </div>
+                        <h2 class="h4">@service.Name</h2>
+                        <p>@service.Description</p>
+                    </article>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<section class="section-space bg-ivory">
+    <div class="container">
+        <div class="row g-5 align-items-start">
+            <div class="col-lg-5">
+                @await Html.PartialAsync("_SectionHeader", new NickysManicurePedicure.ViewModels.SectionHeaderViewModel
+                {
+                    Eyebrow = "Booking",
+                    Title = "Tell us what you would love",
+                    Description = "Send your preferred service, date, and any special details so we can help you book beautifully.",
+                    AlignmentClass = "text-start"
+                })
+            </div>
+            <div class="col-lg-7">
+                <div class="form-panel">
+                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

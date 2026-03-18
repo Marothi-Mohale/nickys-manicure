@@ -1,0 +1,37 @@
+@model NickysManicurePedicure.ViewModels.ServicesPageViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">Book now</span>
+        <h1>Request an appointment and let us confirm the perfect time for you.</h1>
+        <p>Share your preferred service and ideal date, and we will follow up with a confirmation as soon as possible.</p>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-5">
+                <div class="info-panel h-100">
+                    <h2>Popular choices</h2>
+                    <ul class="feature-list">
+                        @foreach (var service in Model.Services.Take(4))
+                        {
+                            <li><strong>@service.Name:</strong> @service.PriceFrom</li>
+                        }
+                    </ul>
+                    <p class="mb-0">Need something bespoke? Mention it in your request and we will help tailor the appointment.</p>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <div class="form-panel">
+                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
