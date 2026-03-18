@@ -5,33 +5,65 @@
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <span class="eyebrow">Cape Town luxury nail care</span>
-                <h1 class="hero-title">Elegant manicure and pedicure appointments with a personal touch.</h1>
-                <p class="hero-copy">For over 8 years, Nicky has helped women feel polished, confident, and beautifully cared for with refined nail services in Mowbray, Cape Town.</p>
+                <h1 class="hero-title">Luxury manicure and pedicure care for women who love elegance done well.</h1>
+                <p class="hero-copy">A polished, high-touch salon experience in Mowbray, Cape Town. Nicky brings over 8 years of trusted expertise to beautifully finished nails, calm appointments, and service that feels intentionally premium.</p>
                 <div class="hero-actions">
                     <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Request Appointment</a>
                     <a class="btn btn-outline-brand btn-lg" asp-controller="Services" asp-action="Index">View Services</a>
                 </div>
-                <ul class="trust-list">
-                    <li>8+ years of experience</li>
-                    <li>Premium, client-focused service</li>
-                    <li>Cape Town based and easy to reach</li>
-                </ul>
-            </div>
-            <div class="col-lg-6">
-                <div class="hero-card">
-                    <div class="hero-stat">
-                        <strong>Luxury service</strong>
-                        <span>Tailored appointments with calm, professional care.</span>
+                <div class="hero-metrics">
+                    <div class="metric-chip">
+                        <strong>8+</strong>
+                        <span>Years of experience</span>
                     </div>
-                    <div class="hero-stat">
-                        <strong>Beautiful finishes</strong>
-                        <span>Soft glam, timeless tones, and occasion-ready polish.</span>
+                    <div class="metric-chip">
+                        <strong>Cape Town</strong>
+                        <span>Mowbray location</span>
                     </div>
-                    <div class="hero-stat">
-                        <strong>Trust you can feel</strong>
-                        <span>Clean standards, consistency, and thoughtful attention to detail.</span>
+                    <div class="metric-chip">
+                        <strong>Luxury Care</strong>
+                        <span>Refined one-to-one service</span>
                     </div>
                 </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-showcase">
+                    <div class="hero-visual">
+                        <div class="hero-badge">
+                            <i class="bi bi-stars"></i>
+                            <span>Premium Beauty Appointments</span>
+                        </div>
+                    </div>
+                    <div class="hero-card hero-overlay-card">
+                        <div class="hero-stat">
+                            <strong>Soft luxury finishes</strong>
+                            <span>Nudes, blush tones, modern classics, and event-ready polish.</span>
+                        </div>
+                        <div class="hero-stat">
+                            <strong>Trust-worthy care</strong>
+                            <span>Consistent quality, attentive detail, and a graceful appointment flow.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="trust-ribbon">
+    <div class="container">
+        <div class="trust-ribbon-grid">
+            <div class="trust-ribbon-item">
+                <i class="bi bi-award"></i>
+                <span>Experienced luxury nail technician</span>
+            </div>
+            <div class="trust-ribbon-item">
+                <i class="bi bi-heart"></i>
+                <span>Client-first, detail-led appointments</span>
+            </div>
+            <div class="trust-ribbon-item">
+                <i class="bi bi-gem"></i>
+                <span>Elegant finishes with a premium aesthetic</span>
             </div>
         </div>
     </div>
@@ -42,8 +74,8 @@
         @await Html.PartialAsync("_SectionHeader", new NickysManicurePedicure.ViewModels.SectionHeaderViewModel
         {
             Eyebrow = "Signature services",
-            Title = "A polished menu designed around care, beauty, and confidence",
-            Description = "Choose from a curated set of premium treatments created for everyday elegance and special moments."
+            Title = "A signature service menu created for polished everyday luxury",
+            Description = "From impeccable maintenance appointments to occasion-ready finishes, each treatment is designed to feel elevated and beautifully considered."
         })
 
         <div class="row g-4">
@@ -51,12 +83,14 @@
             {
                 <div class="col-md-6 col-lg-4">
                     <article class="service-card h-100">
+                        <div class="service-icon"><i class="bi bi-flower1"></i></div>
                         <div class="service-meta">
                             <span>@service.Duration</span>
                             <span>@service.PriceFrom</span>
                         </div>
                         <h3>@service.Name</h3>
                         <p>@service.Description</p>
+                        <a class="service-link" asp-controller="Booking" asp-action="Index">Book this service <i class="bi bi-arrow-right"></i></a>
                     </article>
                 </div>
             }
@@ -71,16 +105,16 @@
                 @await Html.PartialAsync("_SectionHeader", new NickysManicurePedicure.ViewModels.SectionHeaderViewModel
                 {
                     Eyebrow = "Why women choose Nicky",
-                    Title = "Luxury is not only how your nails look, but how you are treated",
-                    Description = "From your first message to your final finish, the experience is built on warmth, professionalism, and careful detail.",
+                    Title = "Luxury is as much about how you feel as how your nails look",
+                    Description = "From your first message to your final finish, the experience is shaped around warmth, professionalism, and thoughtful care.",
                     AlignmentClass = "text-start"
                 })
             </div>
             <div class="col-lg-7">
                 <div class="row g-3">
-                    <div class="col-md-4"><div class="trust-card"><strong>High-end feel</strong><p>Refined styling, premium care, and a calm appointment flow.</p></div></div>
-                    <div class="col-md-4"><div class="trust-card"><strong>Client first</strong><p>Every service is shaped around your lifestyle, goals, and comfort.</p></div></div>
-                    <div class="col-md-4"><div class="trust-card"><strong>Consistent quality</strong><p>Professional standards that help you book with confidence.</p></div></div>
+                    <div class="col-md-4"><div class="trust-card"><i class="bi bi-stars trust-icon"></i><strong>High-end feel</strong><p>Refined styling, premium care, and a calm appointment flow.</p></div></div>
+                    <div class="col-md-4"><div class="trust-card"><i class="bi bi-person-heart trust-icon"></i><strong>Client first</strong><p>Every service is shaped around your lifestyle, goals, and comfort.</p></div></div>
+                    <div class="col-md-4"><div class="trust-card"><i class="bi bi-patch-check trust-icon"></i><strong>Consistent quality</strong><p>Professional standards that help you book with confidence.</p></div></div>
                 </div>
             </div>
         </div>
@@ -89,6 +123,30 @@
 
 @await Html.PartialAsync("_TestimonialsSection", Model.Testimonials)
 
+<section class="section-space gallery-teaser-section">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-5">
+                @await Html.PartialAsync("_SectionHeader", new NickysManicurePedicure.ViewModels.SectionHeaderViewModel
+                {
+                    Eyebrow = "Gallery teaser",
+                    Title = "A visual style rooted in femininity, softness, and polished detail",
+                    Description = "The gallery is designed to showcase future client work with the same premium feel as the salon experience.",
+                    AlignmentClass = "text-start"
+                })
+                <a class="btn btn-outline-brand" asp-controller="Gallery" asp-action="Index">Explore Gallery</a>
+            </div>
+            <div class="col-lg-7">
+                <div class="gallery-teaser-grid">
+                    <div class="gallery-teaser-card tall"></div>
+                    <div class="gallery-teaser-card"></div>
+                    <div class="gallery-teaser-card accent"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="section-space">
     <div class="container">
         <div class="row g-5 align-items-start">
@@ -96,10 +154,14 @@
                 @await Html.PartialAsync("_SectionHeader", new NickysManicurePedicure.ViewModels.SectionHeaderViewModel
                 {
                     Eyebrow = "Appointment request",
-                    Title = "Reserve your next manicure or pedicure",
-                    Description = "Share your preferred service and timing. We will confirm availability and guide you from there.",
+                    Title = "Reserve your next premium manicure or pedicure appointment",
+                    Description = "Share your preferred service and timing. We will confirm availability and make the booking process feel easy, personal, and polished.",
                     AlignmentClass = "text-start"
                 })
+                <div class="booking-note">
+                    <i class="bi bi-telephone-fill"></i>
+                    <span>Prefer a faster response? Call or WhatsApp for direct assistance.</span>
+                </div>
             </div>
             <div class="col-lg-7">
                 <div class="form-panel">

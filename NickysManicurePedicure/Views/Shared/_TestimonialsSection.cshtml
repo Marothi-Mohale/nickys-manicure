@@ -6,19 +6,24 @@
         {
             Eyebrow = "Client love",
             Title = "Trusted by women who value polish, calm, and consistency",
-            Description = "Every appointment is designed to feel personal, polished, and worthy of your time."
+            Description = "A premium beauty appointment should feel graceful from beginning to end. These client reflections speak to that experience."
         })
 
-        <div class="row g-4">
+        <div class="testimonials-strip">
             @foreach (var testimonial in Model)
             {
-                <div class="col-md-6 col-lg-4">
-                    <article class="testimonial-card h-100">
-                        <span class="testimonial-highlight">@testimonial.Highlight</span>
-                        <p class="testimonial-copy">“@testimonial.Review”</p>
-                        <strong class="testimonial-name">@testimonial.ClientName</strong>
-                    </article>
-                </div>
+                <article class="testimonial-card">
+                    <div class="testimonial-stars" aria-hidden="true">
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                        <i class="bi bi-star-fill"></i>
+                    </div>
+                    <span class="testimonial-highlight">@testimonial.Highlight</span>
+                    <p class="testimonial-copy">“@testimonial.Review”</p>
+                    <strong class="testimonial-name">@testimonial.ClientName</strong>
+                </article>
             }
         </div>
     </div>

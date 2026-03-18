@@ -21,6 +21,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -39,6 +40,9 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="mainNav">
+                    <div class="nav-utility d-none d-lg-flex">
+                        <a href="@business.PhoneHref"><i class="bi bi-telephone"></i> @business.Phone</a>
+                    </div>
                     <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="About" asp-action="Index">About</a></li>
@@ -64,12 +68,18 @@
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-4">
+                    <span class="footer-kicker">Luxury Nail Studio</span>
                     <h2 class="footer-title">@business.Name</h2>
                     <p class="footer-copy">@business.Tagline</p>
+                    <div class="footer-social">
+                        <a href="@business.PhoneHref" aria-label="Call the salon"><i class="bi bi-telephone-fill"></i></a>
+                        <a href="mailto:@business.Email" aria-label="Email the salon"><i class="bi bi-envelope-fill"></i></a>
+                        <a href="@business.WhatsAppHref" target="_blank" rel="noopener noreferrer" aria-label="Open WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                    </div>
                 </div>
                 <div class="col-sm-6 col-lg-3">
                     <h3 class="footer-heading">Visit</h3>
-                    <p class="footer-copy">@business.FullAddress</p>
+                    <p class="footer-copy"><i class="bi bi-geo-alt-fill footer-icon"></i>@business.FullAddress</p>
                 </div>
                 <div class="col-sm-6 col-lg-2">
                     <h3 class="footer-heading">Explore</h3>
@@ -83,8 +93,8 @@
                 <div class="col-lg-3">
                     <h3 class="footer-heading">Connect</h3>
                     <ul class="footer-links">
-                        <li><a href="@business.PhoneHref">@business.Phone</a></li>
-                        <li><a href="mailto:@business.Email">@business.Email</a></li>
+                        <li><a href="@business.PhoneHref"><i class="bi bi-telephone footer-icon"></i>@business.Phone</a></li>
+                        <li><a href="mailto:@business.Email"><i class="bi bi-envelope footer-icon"></i>@business.Email</a></li>
                         <li><a href="@business.WhatsAppHref" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
                         <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
                         <li><a asp-controller="Home" asp-action="Terms">Terms</a></li>
