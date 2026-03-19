@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("NickysManicurePedicure.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cdfed7ef21a9ad5102341b3a3f0d82db0b564ebb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d53eb68633a13c534a56560e15cb9b1555979257")]
 [assembly: System.Reflection.AssemblyProductAttribute("NickysManicurePedicure.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("NickysManicurePedicure.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

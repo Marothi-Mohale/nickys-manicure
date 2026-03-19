@@ -143,18 +143,104 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
             FullName = "Test Client",
             Email = "not-an-email",
             PhoneNumber = "123",
-            PreferredService = "",
+            PreferredServiceName = "",
             PreferredDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)),
             PreferredTime = new TimeOnly(10, 0),
             Message = "short"
         };
 
-        var response = await _client.PostAsJsonAsync("/api/booking-requests", request);
+        var response = await _client.PostAsJsonAsync("/api/bookings", request);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
 
         var payload = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
         Assert.NotNull(payload);
         Assert.Contains("Email", payload.Errors.Keys);
+    }
+
+    [Fact]
+    public async Task PostBooking_CreatesAndReturnsCreatedResponse()
+    {
+        var request = new CreateBookingRequestDto
+        {
+            FullName = "Test Client",
+            Email = "client@example.com",
+            PhoneNumber = "+27682518739",
+            PreferredServiceId = 1,
+            PreferredDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(2)),
+            PreferredTime = new TimeOnly(10, 30),
+            Message = "I would like a weekday morning appointment if available.",
+            SourcePage = "Api"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/bookings", request);
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<BookingCreateResponse>();
+        Assert.NotNull(payload);
+        Assert.True(payload.BookingId > 0);
+        Assert.Equal("Pending", payload.Status);
+        Assert.Equal($"/api/bookings/{payload.BookingId}", payload.DetailUrl);
+    }
+
+    [Fact]
+    public async Task GetBookings_ReturnsPagedBookings()
+    {
+        var createRequest = new CreateBookingRequestDto
+        {
+            FullName = "Admin Read Client",
+            Email = "adminread@example.com",
+            PhoneNumber = "+27682518739",
+            PreferredServiceId = 1,
+            PreferredDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(3)),
+            PreferredTime = new TimeOnly(11, 0),
+            Message = "Please book me for a manicure.",
+            SourcePage = "Api"
+        };
+
+        await _client.PostAsJsonAsync("/api/bookings", createRequest);
+
+        var response = await _client.GetAsync("/api/bookings?page=1&pageSize=10");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<BookingReadResponse>>();
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload.Items);
+    }
+
+    [Fact]
+    public async Task PatchBookingStatus_UpdatesBooking()
+    {
+        var createRequest = new CreateBookingRequestDto
+        {
+            FullName = "Status Client",
+            Email = "status@example.com",
+            PhoneNumber = "+27682518739",
+            PreferredServiceId = 2,
+            PreferredDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(4)),
+            PreferredTime = new TimeOnly(12, 0),
+            Message = "Please confirm my pedicure request.",
+            SourcePage = "Api"
+        };
+
+        var createResponse = await _client.PostAsJsonAsync("/api/bookings", createRequest);
+        var createPayload = await createResponse.Content.ReadFromJsonAsync<BookingCreateResponse>();
+        Assert.NotNull(createPayload);
+
+        var patchResponse = await _client.PatchAsJsonAsync(
+            $"/api/bookings/{createPayload.BookingId}/status",
+            new UpdateBookingStatusDto
+            {
+                Status = "Confirmed",
+                AdminNotes = "Confirmed by admin for Friday."
+            });
+
+        patchResponse.EnsureSuccessStatusCode();
+
+        var patchPayload = await patchResponse.Content.ReadFromJsonAsync<BookingReadResponse>();
+        Assert.NotNull(patchPayload);
+        Assert.Equal("Confirmed", patchPayload.Status);
     }
 }

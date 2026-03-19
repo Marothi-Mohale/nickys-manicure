@@ -1,11 +1,14 @@
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
+using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Dtos.Requests;
+using NickysManicurePedicure.Models.Entities;
 
 namespace NickysManicurePedicure.Validation;
 
 public sealed class CreateBookingRequestDtoValidator : AbstractValidator<CreateBookingRequestDto>
 {
-    public CreateBookingRequestDtoValidator()
+    public CreateBookingRequestDtoValidator(ApplicationDbContext dbContext)
     {
         RuleFor(x => x.FullName)
             .TrimmedRequiredText(120, "Full name");
@@ -18,8 +21,43 @@ public sealed class CreateBookingRequestDtoValidator : AbstractValidator<CreateB
             .TrimmedRequiredText(200, "Email")
             .EmailAddress().WithMessage("Email must be a valid email address.");
 
-        RuleFor(x => x.PreferredService)
-            .TrimmedRequiredText(120, "Preferred service");
+        RuleFor(x => x.PreferredServiceName)
+            .MaximumLength(120).WithMessage("Preferred service name must be 120 characters or fewer.");
+
+        RuleFor(x => x)
+            .Must(x => x.PreferredServiceId.HasValue || !string.IsNullOrWhiteSpace(x.PreferredServiceName))
+            .WithMessage("Either preferred service id or preferred service name is required.");
+
+        RuleFor(x => x.PreferredServiceId)
+            .GreaterThan(0).When(x => x.PreferredServiceId.HasValue)
+            .WithMessage("Preferred service id must be greater than 0.");
+
+        RuleFor(x => x)
+            .MustAsync(async (request, cancellationToken) =>
+            {
+                if (!request.PreferredServiceId.HasValue)
+                {
+                    return true;
+                }
+
+                var service = await dbContext.Services
+                    .AsNoTracking()
+                    .Where(x => x.Status == ContentStatus.Published)
+                    .FirstOrDefaultAsync(x => x.Id == request.PreferredServiceId.Value, cancellationToken);
+
+                if (service is null)
+                {
+                    return false;
+                }
+
+                if (string.IsNullOrWhiteSpace(request.PreferredServiceName))
+                {
+                    return true;
+                }
+
+                return string.Equals(service.Name, request.PreferredServiceName.Trim(), StringComparison.Ordinal);
+            })
+            .WithMessage("Preferred service does not reference a valid published service.");
 
         RuleFor(x => x.PreferredDate)
             .NotNull().WithMessage("Preferred date is required.")
@@ -29,7 +67,10 @@ public sealed class CreateBookingRequestDtoValidator : AbstractValidator<CreateB
             .WithMessage("Preferred date must be within the next 6 months.");
 
         RuleFor(x => x.PreferredTime)
-            .NotNull().WithMessage("Preferred time is required.");
+            .NotNull().WithMessage("Preferred time is required.")
+            .Must(time => time is not null && time.Value >= new TimeOnly(7, 0) && time.Value <= new TimeOnly(20, 0))
+            .When(x => x.PreferredTime.HasValue)
+            .WithMessage("Preferred time must be between 07:00 and 20:00.");
 
         RuleFor(x => x.Message)
             .TrimmedRequiredText(2000, "Message")

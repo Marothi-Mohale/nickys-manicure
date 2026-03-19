@@ -1,0 +1,220 @@
+using Microsoft.EntityFrameworkCore;
+using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Data;
+using NickysManicurePedicure.Dtos.Common;
+using NickysManicurePedicure.Dtos.Requests;
+using NickysManicurePedicure.Dtos.Responses;
+using NickysManicurePedicure.Extensions;
+using NickysManicurePedicure.Models.Entities;
+
+namespace NickysManicurePedicure.Application.Services;
+
+public sealed class BookingApiService(
+    ApplicationDbContext dbContext,
+    IBookingNotificationService bookingNotificationService,
+    ILogger<BookingApiService> logger) : IBookingApiService
+{
+    public async Task<BookingCreateResponse> CreateAsync(
+        CreateBookingRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var matchedService = await ResolvePreferredServiceAsync(request, cancellationToken);
+
+        var booking = new BookingRequest
+        {
+            FullName = request.FullName.Trim(),
+            PhoneNumber = request.PhoneNumber.Trim(),
+            Email = request.Email.Trim(),
+            ServiceId = matchedService?.Id,
+            RequestedServiceName = matchedService?.Name ?? request.PreferredServiceName!.Trim(),
+            PreferredDate = request.PreferredDate!.Value,
+            PreferredTime = request.PreferredTime!.Value,
+            Message = request.Message.Trim(),
+            SourcePage = string.IsNullOrWhiteSpace(request.SourcePage) ? "Api" : request.SourcePage.Trim()
+        };
+
+        dbContext.BookingRequests.Add(booking);
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var response = MapBookingReadResponse(booking);
+
+        logger.LogInformation(
+            "Created booking {BookingId} for {Email} on {PreferredDate} at {PreferredTime}.",
+            booking.Id,
+            booking.Email,
+            booking.PreferredDate,
+            booking.PreferredTime);
+
+        await bookingNotificationService.OnBookingCreatedAsync(response, cancellationToken);
+
+        return new BookingCreateResponse
+        {
+            BookingId = booking.Id,
+            Status = booking.Status.ToString(),
+            Message = "Your booking request has been received. We will confirm availability and follow up shortly.",
+            DetailUrl = $"/api/bookings/{booking.Id}"
+        };
+    }
+
+    public async Task<PagedResponse<BookingReadResponse>> GetBookingsAsync(
+        BookingQueryParameters query,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+
+        var bookingsQuery = dbContext.BookingRequests.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim();
+            bookingsQuery = bookingsQuery.Where(x =>
+                x.FullName.Contains(search) ||
+                x.Email.Contains(search) ||
+                x.PhoneNumber.Contains(search) ||
+                x.RequestedServiceName.Contains(search));
+        }
+
+        if (!string.IsNullOrWhiteSpace(query.Status)
+            && Enum.TryParse<BookingRequestStatus>(query.Status, ignoreCase: true, out var status))
+        {
+            bookingsQuery = bookingsQuery.Where(x => x.Status == status);
+        }
+
+        if (query.FromDate is not null)
+        {
+            bookingsQuery = bookingsQuery.Where(x => x.PreferredDate >= query.FromDate);
+        }
+
+        if (query.ToDate is not null)
+        {
+            bookingsQuery = bookingsQuery.Where(x => x.PreferredDate <= query.ToDate);
+        }
+
+        bookingsQuery = (query.SortBy, query.SortDirection) switch
+        {
+            ("preferredDate", "asc") => bookingsQuery.OrderBy(x => x.PreferredDate).ThenBy(x => x.PreferredTime).ThenBy(x => x.Id),
+            ("preferredDate", _) => bookingsQuery.OrderByDescending(x => x.PreferredDate).ThenByDescending(x => x.PreferredTime).ThenByDescending(x => x.Id),
+            ("status", "asc") => bookingsQuery.OrderBy(x => x.Status).ThenByDescending(x => x.CreatedAtUtc),
+            ("status", _) => bookingsQuery.OrderByDescending(x => x.Status).ThenByDescending(x => x.CreatedAtUtc),
+            ("createdAtUtc", "asc") => bookingsQuery.OrderBy(x => x.CreatedAtUtc).ThenBy(x => x.Id),
+            _ => bookingsQuery.OrderByDescending(x => x.CreatedAtUtc).ThenByDescending(x => x.Id)
+        };
+
+        return await bookingsQuery
+            .Select(x => new BookingReadResponse
+            {
+                Id = x.Id,
+                PreferredServiceId = x.ServiceId,
+                PreferredServiceName = x.RequestedServiceName,
+                Status = x.Status.ToString(),
+                FullName = x.FullName,
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                PreferredDate = x.PreferredDate,
+                PreferredTime = x.PreferredTime,
+                Message = x.Message,
+                SourcePage = x.SourcePage,
+                AdminNotes = x.AdminNotes,
+                CreatedAtUtc = x.CreatedAtUtc,
+                UpdatedAtUtc = x.UpdatedAtUtc
+            })
+            .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
+    }
+
+    public async Task<BookingReadResponse?> GetByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return await dbContext.BookingRequests
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new BookingReadResponse
+            {
+                Id = x.Id,
+                PreferredServiceId = x.ServiceId,
+                PreferredServiceName = x.RequestedServiceName,
+                Status = x.Status.ToString(),
+                FullName = x.FullName,
+                Email = x.Email,
+                PhoneNumber = x.PhoneNumber,
+                PreferredDate = x.PreferredDate,
+                PreferredTime = x.PreferredTime,
+                Message = x.Message,
+                SourcePage = x.SourcePage,
+                AdminNotes = x.AdminNotes,
+                CreatedAtUtc = x.CreatedAtUtc,
+                UpdatedAtUtc = x.UpdatedAtUtc
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<BookingReadResponse?> UpdateStatusAsync(
+        int id,
+        UpdateBookingStatusDto request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var booking = await dbContext.BookingRequests.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        if (booking is null)
+        {
+            return null;
+        }
+
+        booking.Status = Enum.Parse<BookingRequestStatus>(request.Status, ignoreCase: true);
+        booking.AdminNotes = string.IsNullOrWhiteSpace(request.AdminNotes) ? booking.AdminNotes : request.AdminNotes.Trim();
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+
+        var response = MapBookingReadResponse(booking);
+
+        logger.LogInformation(
+            "Updated booking {BookingId} to status {Status}.",
+            booking.Id,
+            booking.Status);
+
+        await bookingNotificationService.OnBookingStatusUpdatedAsync(response, cancellationToken);
+
+        return response;
+    }
+
+    private async Task<Service?> ResolvePreferredServiceAsync(CreateBookingRequestDto request, CancellationToken cancellationToken)
+    {
+        if (request.PreferredServiceId is not null)
+        {
+            return await dbContext.Services
+                .AsNoTracking()
+                .Where(x => x.Status == ContentStatus.Published)
+                .FirstOrDefaultAsync(x => x.Id == request.PreferredServiceId.Value, cancellationToken);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.PreferredServiceName))
+        {
+            return null;
+        }
+
+        var trimmedName = request.PreferredServiceName.Trim();
+        return await dbContext.Services
+            .AsNoTracking()
+            .Where(x => x.Status == ContentStatus.Published)
+            .FirstOrDefaultAsync(x => x.Name == trimmedName, cancellationToken);
+    }
+
+    private static BookingReadResponse MapBookingReadResponse(BookingRequest booking) => new()
+    {
+        Id = booking.Id,
+        PreferredServiceId = booking.ServiceId,
+        PreferredServiceName = booking.RequestedServiceName,
+        Status = booking.Status.ToString(),
+        FullName = booking.FullName,
+        Email = booking.Email,
+        PhoneNumber = booking.PhoneNumber,
+        PreferredDate = booking.PreferredDate,
+        PreferredTime = booking.PreferredTime,
+        Message = booking.Message,
+        SourcePage = booking.SourcePage,
+        AdminNotes = booking.AdminNotes,
+        CreatedAtUtc = booking.CreatedAtUtc,
+        UpdatedAtUtc = booking.UpdatedAtUtc
+    };
+}
