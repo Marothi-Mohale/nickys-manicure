@@ -5,32 +5,20 @@ using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Dtos.Responses;
 
-namespace NickysManicurePedicure.Api.Controllers;
+namespace NickysManicurePedicure.Api.Controllers.Admin;
 
-[ApiController]
+[Route("api/admin/bookings")]
 [Route("api/bookings")]
 [Route("api/booking-requests")]
-[Produces("application/json")]
-public sealed class BookingsApiController(IBookingApiService bookingApiService) : ControllerBase
+public sealed class AdminBookingsApiController(IBookingAdminService bookingAdminService) : AdminControllerBase
 {
-    [HttpPost]
-    [ProducesResponseType(typeof(BookingCreateResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<BookingCreateResponse>> Create(
-        [FromBody] CreateBookingRequestDto request,
-        CancellationToken cancellationToken)
-    {
-        var response = await bookingApiService.CreateAsync(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = response.BookingId }, response);
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<BookingReadResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResponse<BookingReadResponse>>> GetList(
         [FromQuery] BookingQueryParameters query,
         CancellationToken cancellationToken)
     {
-        return Ok(await bookingApiService.GetBookingsAsync(query, cancellationToken));
+        return Ok(await bookingAdminService.GetBookingsAsync(query, cancellationToken));
     }
 
     [HttpGet("{id:int}")]
@@ -40,7 +28,7 @@ public sealed class BookingsApiController(IBookingApiService bookingApiService) 
         int id,
         CancellationToken cancellationToken)
     {
-        var booking = await bookingApiService.GetByIdAsync(id, cancellationToken);
+        var booking = await bookingAdminService.GetByIdAsync(id, cancellationToken);
         return Ok(booking ?? throw new NotFoundException("Booking", id));
     }
 
@@ -53,7 +41,7 @@ public sealed class BookingsApiController(IBookingApiService bookingApiService) 
         [FromBody] UpdateBookingStatusDto request,
         CancellationToken cancellationToken)
     {
-        var booking = await bookingApiService.UpdateStatusAsync(id, request, cancellationToken);
+        var booking = await bookingAdminService.UpdateStatusAsync(id, request, cancellationToken);
         return Ok(booking ?? throw new NotFoundException("Booking", id));
     }
 }

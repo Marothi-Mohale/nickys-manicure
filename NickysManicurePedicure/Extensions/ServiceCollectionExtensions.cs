@@ -135,9 +135,11 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IInquiryService, InquiryService>();
         services.AddScoped<IBookingRequestService, BookingRequestService>();
-        services.AddScoped<IBookingApiService, BookingApiService>();
+        services.AddScoped<IBookingPublicCommandService, PublicBookingCommandService>();
+        services.AddScoped<IBookingAdminService, BookingAdminService>();
         services.AddSingleton<IBookingNotificationService, NullBookingNotificationService>();
-        services.AddScoped<IContactInquiryApiService, ContactInquiryApiService>();
+        services.AddScoped<IContactInquiryPublicCommandService, PublicContactInquiryCommandService>();
+        services.AddScoped<IContactInquiryAdminService, ContactInquiryAdminService>();
         services.AddSingleton<IContactInquiryNotificationService, NullContactInquiryNotificationService>();
         services.AddScoped<IPublicSalonApiService, PublicSalonApiService>();
 

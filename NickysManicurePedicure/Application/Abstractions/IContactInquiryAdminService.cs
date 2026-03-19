@@ -4,10 +4,8 @@ using NickysManicurePedicure.Dtos.Responses;
 
 namespace NickysManicurePedicure.Application.Abstractions;
 
-public interface IContactInquiryApiService
+public interface IContactInquiryAdminService
 {
-    Task<ContactInquiryCreateResponse> CreateAsync(CreateContactInquiryDto request, CancellationToken cancellationToken);
-
     Task<PagedResponse<ContactInquiryReadResponse>> GetInquiriesAsync(ContactInquiryQueryParameters query, CancellationToken cancellationToken);
 
     Task<ContactInquiryReadResponse?> GetByIdAsync(int id, CancellationToken cancellationToken);

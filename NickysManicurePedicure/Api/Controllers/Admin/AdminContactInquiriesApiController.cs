@@ -5,31 +5,19 @@ using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Dtos.Responses;
 
-namespace NickysManicurePedicure.Api.Controllers;
+namespace NickysManicurePedicure.Api.Controllers.Admin;
 
-[ApiController]
+[Route("api/admin/contact-inquiries")]
 [Route("api/contact-inquiries")]
-[Produces("application/json")]
-public sealed class ContactInquiriesApiController(IContactInquiryApiService contactInquiryApiService) : ControllerBase
+public sealed class AdminContactInquiriesApiController(IContactInquiryAdminService contactInquiryAdminService) : AdminControllerBase
 {
-    [HttpPost]
-    [ProducesResponseType(typeof(ContactInquiryCreateResponse), StatusCodes.Status201Created)]
-    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ContactInquiryCreateResponse>> Create(
-        [FromBody] CreateContactInquiryDto request,
-        CancellationToken cancellationToken)
-    {
-        var response = await contactInquiryApiService.CreateAsync(request, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new { id = response.InquiryId }, response);
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(PagedResponse<ContactInquiryReadResponse>), StatusCodes.Status200OK)]
     public async Task<ActionResult<PagedResponse<ContactInquiryReadResponse>>> GetList(
         [FromQuery] ContactInquiryQueryParameters query,
         CancellationToken cancellationToken)
     {
-        return Ok(await contactInquiryApiService.GetInquiriesAsync(query, cancellationToken));
+        return Ok(await contactInquiryAdminService.GetInquiriesAsync(query, cancellationToken));
     }
 
     [HttpGet("{id:int}")]
@@ -39,7 +27,7 @@ public sealed class ContactInquiriesApiController(IContactInquiryApiService cont
         int id,
         CancellationToken cancellationToken)
     {
-        var inquiry = await contactInquiryApiService.GetByIdAsync(id, cancellationToken);
+        var inquiry = await contactInquiryAdminService.GetByIdAsync(id, cancellationToken);
         return Ok(inquiry ?? throw new NotFoundException("Contact inquiry", id));
     }
 
@@ -52,7 +40,7 @@ public sealed class ContactInquiriesApiController(IContactInquiryApiService cont
         [FromBody] UpdateContactInquiryStatusDto request,
         CancellationToken cancellationToken)
     {
-        var inquiry = await contactInquiryApiService.UpdateStatusAsync(id, request, cancellationToken);
+        var inquiry = await contactInquiryAdminService.UpdateStatusAsync(id, request, cancellationToken);
         return Ok(inquiry ?? throw new NotFoundException("Contact inquiry", id));
     }
 }
