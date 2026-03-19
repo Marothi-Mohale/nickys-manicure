@@ -5,6 +5,10 @@
         <span class="eyebrow">Services</span>
         <h1>Curated manicure and pedicure treatments for polished, modern women.</h1>
         <p>Every service is delivered with attention to detail, lasting beauty, and a premium client experience.</p>
+        <div class="hero-actions mt-4">
+            <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Book Your Appointment</a>
+            <a class="btn btn-outline-brand btn-lg" href="#services-booking-form">Request From This Page</a>
+        </div>
     </div>
 </section>
 
@@ -28,7 +32,23 @@
     </div>
 </section>
 
-<section class="section-space bg-ivory">
+<section class="section-space pt-0">
+    <div class="container">
+        <div class="cta-panel booking-cta-panel">
+            <div>
+                <span class="eyebrow">Booking made easy</span>
+                <h2>Seen the right service? Send your appointment request while it is fresh.</h2>
+                <p>Choose your preferred treatment, date, and time, and we will confirm the best available slot.</p>
+            </div>
+            <div class="cta-actions">
+                <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Go to Booking Page</a>
+                <a class="btn btn-outline-brand btn-lg" href="#services-booking-form">Request Here</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-space bg-ivory" id="services-booking-form">
     <div class="container">
         <div class="row g-5 align-items-start">
             <div class="col-lg-5">
@@ -42,7 +62,7 @@
             </div>
             <div class="col-lg-7">
                 <div class="form-panel">
-                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
+                    @await Html.PartialAsync("_BookingRequestForm", Model.BookingForm)
                 </div>
             </div>
         </div>

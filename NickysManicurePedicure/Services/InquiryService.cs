@@ -8,7 +8,7 @@ public class InquiryService(
     ApplicationDbContext dbContext,
     ILogger<InquiryService> logger) : IInquiryService
 {
-    public async Task<(bool Success, string Message)> CreateAsync(
+    public async Task<SubmissionResult> CreateAsync(
         InquiryFormViewModel model,
         CancellationToken cancellationToken = default)
     {
@@ -20,9 +20,8 @@ public class InquiryService(
                 FullName = model.FullName.Trim(),
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
-                PreferredDate = model.PreferredDate,
-                ServiceInterest = string.IsNullOrWhiteSpace(model.ServiceInterest) ? null : model.ServiceInterest.Trim(),
-                Message = model.Message.Trim()
+                Message = model.Message.Trim(),
+                SourcePage = model.SourcePage.Trim()
             };
 
             dbContext.Inquiries.Add(inquiry);
@@ -38,12 +37,12 @@ public class InquiryService(
                 ? "Your appointment request has been received. We will contact you shortly to confirm the details."
                 : "Your message has been received. We will get back to you as soon as possible.";
 
-            return (true, message);
+            return new SubmissionResult(true, message, inquiry.Id);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save inquiry from {Email}.", model.Email);
-            return (false, "We could not send your request just now. Please call or WhatsApp us directly and we will assist you.");
+            return new SubmissionResult(false, "We could not send your message just now. Please call or WhatsApp us directly and we will assist you.");
         }
     }
 }

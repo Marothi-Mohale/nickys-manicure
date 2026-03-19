@@ -7,5 +7,5 @@ public class ServicesPageViewModel
 {
     public required BusinessProfileOptions Business { get; init; }
     public required IReadOnlyCollection<SalonService> Services { get; init; }
-    public required InquiryFormViewModel InquiryForm { get; init; }
+    public required BookingRequestViewModel BookingForm { get; init; }
 }

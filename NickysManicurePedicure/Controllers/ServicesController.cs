@@ -23,9 +23,8 @@ public class ServicesController(
             Services = await dbContext.Services
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
-            InquiryForm = new InquiryFormViewModel
+            BookingForm = new BookingRequestViewModel
             {
-                InquiryType = InquiryType.Booking,
                 SourcePage = "Services"
             }
         };

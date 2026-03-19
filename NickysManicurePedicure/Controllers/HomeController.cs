@@ -33,9 +33,8 @@ public class HomeController(
             FaqItems = await dbContext.FaqItems
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
-            InquiryForm = new InquiryFormViewModel
+            BookingForm = new BookingRequestViewModel
             {
-                InquiryType = InquiryType.Booking,
                 SourcePage = "Home"
             }
         };

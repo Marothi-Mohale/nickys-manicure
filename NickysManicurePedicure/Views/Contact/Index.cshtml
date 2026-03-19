@@ -5,6 +5,25 @@
         <span class="eyebrow">Contact</span>
         <h1>Reach out for service questions, bookings, and premium nail care support.</h1>
         <p>Use the details below or send a message online. We will respond as quickly as possible.</p>
+        <div class="hero-actions mt-4">
+            <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Book Your Appointment</a>
+            <a class="btn btn-outline-brand btn-lg" href="@Model.Business.WhatsAppHref" target="_blank" rel="noopener noreferrer">WhatsApp Us</a>
+        </div>
+    </div>
+</section>
+
+<section class="section-space pt-0">
+    <div class="container">
+        <div class="cta-panel booking-cta-panel">
+            <div>
+                <span class="eyebrow">Prefer to book?</span>
+                <h2>Skip the back-and-forth and send a dedicated appointment request.</h2>
+                <p>The booking page captures your service, preferred date, and preferred time so we can confirm faster.</p>
+            </div>
+            <div class="cta-actions">
+                <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Open Booking Form</a>
+            </div>
+        </div>
     </div>
 </section>
 

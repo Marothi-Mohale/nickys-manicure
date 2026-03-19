@@ -3,11 +3,9 @@ using NickysManicurePedicure.Models.Options;
 
 namespace NickysManicurePedicure.ViewModels;
 
-public class HomePageViewModel
+public class BookingPageViewModel
 {
     public required BusinessProfileOptions Business { get; init; }
-    public required IReadOnlyCollection<SalonService> FeaturedServices { get; init; }
-    public required IReadOnlyCollection<Testimonial> Testimonials { get; init; }
-    public required IReadOnlyCollection<FaqItem> FaqItems { get; init; }
+    public required IReadOnlyCollection<SalonService> Services { get; init; }
     public required BookingRequestViewModel BookingForm { get; init; }
 }

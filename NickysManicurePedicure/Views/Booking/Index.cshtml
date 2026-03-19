@@ -1,18 +1,29 @@
-@model NickysManicurePedicure.ViewModels.ServicesPageViewModel
+@model NickysManicurePedicure.ViewModels.BookingPageViewModel
 
 <section class="page-hero">
     <div class="container">
         <span class="eyebrow">Book now</span>
         <h1>Request an appointment and let us confirm the perfect time for you.</h1>
         <p>Share your preferred service and ideal date, and we will follow up with a confirmation as soon as possible.</p>
+        <div class="hero-actions mt-4">
+            <a class="btn btn-brand btn-lg" href="#booking-request">Book Your Appointment</a>
+            <a class="btn btn-outline-brand btn-lg" href="@Model.Business.WhatsAppHref" target="_blank" rel="noopener noreferrer">WhatsApp Us</a>
+        </div>
     </div>
 </section>
 
-<section class="section-space">
+<section class="section-space" id="booking-request">
     <div class="container">
         <div class="row g-5">
             <div class="col-lg-5">
                 <div class="info-panel h-100">
+                    <span class="eyebrow">Easy next steps</span>
+                    <h2>Send your request and we will take it from there.</h2>
+                    <p>Choose your service, date, and time, then share any details we should know. We will confirm availability and follow up personally.</p>
+                    <div class="booking-confirmation-card">
+                        <strong>What happens next</strong>
+                        <p class="mb-0">Your request is stored securely, ready for later WhatsApp updates, email confirmations, and admin follow-up workflows.</p>
+                    </div>
                     <h2>Popular choices</h2>
                     <ul class="feature-list">
                         @foreach (var service in Model.Services.Take(4))
@@ -25,7 +36,7 @@
             </div>
             <div class="col-lg-7">
                 <div class="form-panel">
-                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
+                    @await Html.PartialAsync("_BookingRequestForm", Model.BookingForm)
                 </div>
             </div>
         </div>

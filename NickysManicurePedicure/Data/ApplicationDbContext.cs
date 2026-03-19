@@ -19,8 +19,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(x => x.FullName).HasMaxLength(120).IsRequired();
             entity.Property(x => x.Email).HasMaxLength(200).IsRequired();
             entity.Property(x => x.PhoneNumber).HasMaxLength(30).IsRequired();
-            entity.Property(x => x.ServiceInterest).HasMaxLength(120);
+            entity.Property(x => x.PreferredService).HasMaxLength(120);
             entity.Property(x => x.Message).HasMaxLength(2000).IsRequired();
+            entity.Property(x => x.SourcePage).HasMaxLength(40).IsRequired();
             entity.Property(x => x.InquiryType).HasConversion<string>().HasMaxLength(30);
             entity.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
             entity.HasIndex(x => x.CreatedUtc);

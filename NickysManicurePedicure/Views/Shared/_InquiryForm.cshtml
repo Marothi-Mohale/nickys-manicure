@@ -1,6 +1,6 @@
 @model NickysManicurePedicure.ViewModels.InquiryFormViewModel
 
-<form asp-controller="Booking" asp-action="Submit" method="post" class="premium-form">
+<form asp-controller="Contact" asp-action="Submit" method="post" class="premium-form">
     @Html.AntiForgeryToken()
     <input asp-for="InquiryType" type="hidden" />
     <input asp-for="SourcePage" type="hidden" />
@@ -23,19 +23,6 @@
             <input asp-for="Email" class="form-control" autocomplete="email" />
             <span asp-validation-for="Email" class="text-danger small"></span>
         </div>
-        <div class="col-md-6">
-            <label asp-for="ServiceInterest" class="form-label"></label>
-            <input asp-for="ServiceInterest" class="form-control" placeholder="Luxury manicure, gel refresh, bridal prep..." />
-            <span asp-validation-for="ServiceInterest" class="text-danger small"></span>
-        </div>
-        @if (Model.InquiryType == NickysManicurePedicure.Models.Entities.InquiryType.Booking)
-        {
-            <div class="col-md-6">
-                <label asp-for="PreferredDate" class="form-label"></label>
-                <input asp-for="PreferredDate" class="form-control" />
-                <span asp-validation-for="PreferredDate" class="text-danger small"></span>
-            </div>
-        }
         <div class="col-12">
             <label asp-for="Message" class="form-label"></label>
             <textarea asp-for="Message" class="form-control" rows="5"></textarea>

@@ -27,7 +27,8 @@ public class Program
             options.UseNpgsql(connectionString));
 
         builder.Services.AddControllersWithViews();
-        builder.Services.AddScoped<IInquiryService, InquiryService>();
+builder.Services.AddScoped<IInquiryService, InquiryService>();
+builder.Services.AddScoped<IBookingRequestService, BookingRequestService>();
 
         var app = builder.Build();
 
