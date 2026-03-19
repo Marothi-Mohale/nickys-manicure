@@ -1,9 +1,0 @@
-using NickysManicurePedicure.Dtos.Requests;
-using NickysManicurePedicure.Dtos.Responses;
-
-namespace NickysManicurePedicure.Application.Abstractions;
-
-public interface IInquiryApiCommandService
-{
-    Task<ContactInquiryCreateResponse> CreateContactInquiryAsync(CreateContactInquiryDto request, CancellationToken cancellationToken);
-}
