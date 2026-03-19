@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Dtos.Responses;
@@ -39,7 +40,7 @@ public sealed class ContactInquiriesApiController(IContactInquiryApiService cont
         CancellationToken cancellationToken)
     {
         var inquiry = await contactInquiryApiService.GetByIdAsync(id, cancellationToken);
-        return inquiry is null ? NotFound() : Ok(inquiry);
+        return Ok(inquiry ?? throw new NotFoundException("Contact inquiry", id));
     }
 
     [HttpPatch("{id:int}/status")]
@@ -52,6 +53,6 @@ public sealed class ContactInquiriesApiController(IContactInquiryApiService cont
         CancellationToken cancellationToken)
     {
         var inquiry = await contactInquiryApiService.UpdateStatusAsync(id, request, cancellationToken);
-        return inquiry is null ? NotFound() : Ok(inquiry);
+        return Ok(inquiry ?? throw new NotFoundException("Contact inquiry", id));
     }
 }

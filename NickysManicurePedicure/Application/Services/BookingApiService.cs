@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
@@ -182,10 +183,14 @@ public sealed class BookingApiService(
     {
         if (request.PreferredServiceId is not null)
         {
-            return await dbContext.Services
+            var matchedService = await dbContext.Services
                 .AsNoTracking()
                 .Where(x => x.Status == ContentStatus.Published)
                 .FirstOrDefaultAsync(x => x.Id == request.PreferredServiceId.Value, cancellationToken);
+
+            return matchedService ?? throw new BadRequestException(
+                "The selected service could not be found.",
+                "invalid_service_reference");
         }
 
         if (string.IsNullOrWhiteSpace(request.PreferredServiceName))
@@ -194,10 +199,14 @@ public sealed class BookingApiService(
         }
 
         var trimmedName = request.PreferredServiceName.Trim();
-        return await dbContext.Services
+        var namedService = await dbContext.Services
             .AsNoTracking()
             .Where(x => x.Status == ContentStatus.Published)
             .FirstOrDefaultAsync(x => x.Name == trimmedName, cancellationToken);
+
+        return namedService ?? throw new BadRequestException(
+            "The selected service could not be found.",
+            "invalid_service_reference");
     }
 
     private static BookingReadResponse MapBookingReadResponse(BookingRequest booking) => new()

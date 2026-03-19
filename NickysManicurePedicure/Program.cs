@@ -51,7 +51,12 @@ public class Program
         app.UseForwardedHeaders();
         app.UseHttpLogging();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
-        app.UseStatusCodePagesWithReExecute("/status/{0}");
+        app.UseWhen(
+            context => context.Request.Path.StartsWithSegments("/api"),
+            apiApp => apiApp.UseMiddleware<ApiStatusCodeProblemDetailsMiddleware>());
+        app.UseWhen(
+            context => !context.Request.Path.StartsWithSegments("/api"),
+            webApp => webApp.UseStatusCodePagesWithReExecute("/status/{0}"));
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();

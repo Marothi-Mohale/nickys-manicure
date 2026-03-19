@@ -131,6 +131,34 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
+    public async Task GetMissingBooking_ReturnsProblemDetailsNotFound()
+    {
+        var response = await _client.GetAsync("/api/bookings/999999");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(payload);
+        Assert.Equal(404, payload.Status);
+        Assert.Equal("resource_not_found", payload.Extensions["errorCode"]?.ToString());
+        Assert.NotNull(payload.Extensions["traceId"]);
+        Assert.NotNull(payload.Extensions["correlationId"]);
+    }
+
+    [Fact]
+    public async Task GetUnknownApiRoute_ReturnsProblemDetailsNotFound()
+    {
+        var response = await _client.GetAsync("/api/does-not-exist");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(payload);
+        Assert.Equal(404, payload.Status);
+        Assert.Equal("resource_not_found", payload.Extensions["errorCode"]?.ToString());
+    }
+
+    [Fact]
     public async Task GetTestimonials_ReturnsApprovedTestimonialsInDisplayOrder()
     {
         var response = await _client.GetAsync("/api/testimonials?page=1&pageSize=10&sortBy=displayOrder&sortDirection=asc");

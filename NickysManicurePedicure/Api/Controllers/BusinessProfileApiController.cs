@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Dtos.Responses;
 
 namespace NickysManicurePedicure.Api.Controllers;
@@ -16,6 +17,6 @@ public sealed class BusinessProfileApiController(IPublicSalonApiService publicSa
     public async Task<ActionResult<BusinessProfileResponse>> Get(CancellationToken cancellationToken)
     {
         var profile = await publicSalonApiService.GetBusinessProfileAsync(cancellationToken);
-        return profile is null ? NotFound() : Ok(profile);
+        return Ok(profile ?? throw new NotFoundException("Business profile"));
     }
 }

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Application.Abstractions;
 using NickysManicurePedicure.Application.Services;
 using NickysManicurePedicure.Data;
@@ -117,6 +118,7 @@ public static class ServiceCollectionExtensions
                 };
 
                 problemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+                problemDetails.Extensions["correlationId"] = context.HttpContext.Response.Headers["X-Correlation-ID"].ToString();
                 problemDetails.Extensions["errorCode"] = "validation_error";
 
                 return new BadRequestObjectResult(problemDetails);

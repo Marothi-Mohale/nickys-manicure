@@ -1,14 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-using NickysManicurePedicure.Common.Errors;
+using NickysManicurePedicure.Common.Exceptions;
+using NickysManicurePedicure.Infrastructure;
 
 namespace NickysManicurePedicure.Middleware;
 
 public sealed class ExceptionHandlingMiddleware(
     RequestDelegate next,
-    ILogger<ExceptionHandlingMiddleware> logger)
+    ILogger<ExceptionHandlingMiddleware> logger,
+    IWebHostEnvironment environment)
 {
     public async Task InvokeAsync(HttpContext context)
     {
+        var correlationId = ResolveCorrelationId(context);
+        context.Response.Headers["X-Correlation-ID"] = correlationId;
+
+        using var scope = logger.BeginScope(new Dictionary<string, object?>
+        {
+            ["TraceId"] = context.TraceIdentifier,
+            ["CorrelationId"] = correlationId,
+            ["RequestPath"] = context.Request.Path.Value,
+            ["RequestMethod"] = context.Request.Method
+        });
+
         try
         {
             await next(context);
@@ -16,42 +29,64 @@ public sealed class ExceptionHandlingMiddleware(
         catch (OperationCanceledException) when (context.RequestAborted.IsCancellationRequested)
         {
             logger.LogInformation(
-                "Request was cancelled by the client for {Method} {Path}. TraceIdentifier: {TraceIdentifier}",
+                "Request was cancelled by the client for {Method} {Path}. TraceIdentifier: {TraceIdentifier}. CorrelationId: {CorrelationId}",
                 context.Request.Method,
                 context.Request.Path,
-                context.TraceIdentifier);
+                context.TraceIdentifier,
+                correlationId);
         }
         catch (Exception exception)
         {
-            logger.LogError(
-                exception,
-                "Unhandled exception for {Method} {Path}. TraceIdentifier: {TraceIdentifier}",
-                context.Request.Method,
-                context.Request.Path,
-                context.TraceIdentifier);
-
             if (context.Response.HasStarted)
             {
                 throw;
             }
 
             context.Response.Clear();
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            var logMessage = exception is DomainException
+                ? "Handled domain exception for {Method} {Path}. TraceIdentifier: {TraceIdentifier}. CorrelationId: {CorrelationId}"
+                : "Unhandled exception for {Method} {Path}. TraceIdentifier: {TraceIdentifier}. CorrelationId: {CorrelationId}";
 
-            var problemDetails = new ProblemDetails
+            if (exception is DomainException)
             {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "An unexpected error occurred.",
-                Detail = ErrorDetails.Unexpected("The server could not complete the request. Please try again later.").Message,
-                Type = "https://tools.ietf.org/html/rfc9110#section-15.6.1",
-                Instance = context.Request.Path
-            };
+                logger.LogWarning(
+                    exception,
+                    logMessage,
+                    context.Request.Method,
+                    context.Request.Path,
+                    context.TraceIdentifier,
+                    correlationId);
+            }
+            else
+            {
+                logger.LogError(
+                    exception,
+                    logMessage,
+                    context.Request.Method,
+                    context.Request.Path,
+                    context.TraceIdentifier,
+                    correlationId);
+            }
 
-            problemDetails.Extensions["traceId"] = context.TraceIdentifier;
-            problemDetails.Extensions["errorCode"] = "unexpected_error";
+            var problemDetails = ApiProblemDetailsFactory.CreateForException(
+                context,
+                exception,
+                environment.IsDevelopment());
+
+            context.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
 
             context.Response.ContentType = "application/problem+json";
             await context.Response.WriteAsJsonAsync(problemDetails);
         }
+    }
+
+    private static string ResolveCorrelationId(HttpContext context)
+    {
+        const string headerName = "X-Correlation-ID";
+        var headerValue = context.Request.Headers[headerName].ToString().Trim();
+
+        return string.IsNullOrWhiteSpace(headerValue)
+            ? context.TraceIdentifier
+            : headerValue[..Math.Min(headerValue.Length, 128)];
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Dtos.Responses;
@@ -40,7 +41,7 @@ public sealed class BookingsApiController(IBookingApiService bookingApiService) 
         CancellationToken cancellationToken)
     {
         var booking = await bookingApiService.GetByIdAsync(id, cancellationToken);
-        return booking is null ? NotFound() : Ok(booking);
+        return Ok(booking ?? throw new NotFoundException("Booking", id));
     }
 
     [HttpPatch("{id:int}/status")]
@@ -53,6 +54,6 @@ public sealed class BookingsApiController(IBookingApiService bookingApiService) 
         CancellationToken cancellationToken)
     {
         var booking = await bookingApiService.UpdateStatusAsync(id, request, cancellationToken);
-        return booking is null ? NotFound() : Ok(booking);
+        return Ok(booking ?? throw new NotFoundException("Booking", id));
     }
 }
