@@ -42,16 +42,48 @@ public sealed class PublicSalonApiService(
             servicesQuery = servicesQuery.Where(x => x.ServiceCategory != null && x.ServiceCategory.Slug == category);
         }
 
+        var projectedQuery = servicesQuery
+            .Select(x => new ServiceListItemResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Slug = x.Slug,
+                Description = x.Description,
+                DurationLabel = x.DurationLabel,
+                PriceFromLabel = x.PriceFromLabel,
+                PriceFromAmount = x.PriceFromAmount,
+                IsFeatured = x.IsFeatured,
+                DisplayOrder = x.DisplayOrder,
+                Category = new ServiceCategorySummaryResponse
+                {
+                    Id = x.ServiceCategoryId,
+                    Name = x.ServiceCategory!.Name,
+                    Slug = x.ServiceCategory.Slug,
+                    Description = x.ServiceCategory.Description
+                }
+            });
+
+        if (query.SortBy == "price")
+        {
+            var items = await projectedQuery.ToListAsync(cancellationToken);
+
+            var orderedItems = query.SortDirection == "desc"
+                ? items.OrderByDescending(x => x.PriceFromAmount.HasValue)
+                    .ThenByDescending(x => x.PriceFromAmount)
+                    .ThenBy(x => x.DisplayOrder)
+                    .ToList()
+                : items.OrderByDescending(x => x.PriceFromAmount.HasValue)
+                    .ThenBy(x => x.PriceFromAmount)
+                    .ThenBy(x => x.DisplayOrder)
+                    .ToList();
+
+            return CreatePagedResponse(orderedItems, query.Page, query.PageSize);
+        }
+
         servicesQuery = (query.SortBy, query.SortDirection) switch
         {
             ("name", "desc") => servicesQuery.OrderByDescending(x => x.Name).ThenBy(x => x.DisplayOrder),
             ("name", _) => servicesQuery.OrderBy(x => x.Name).ThenBy(x => x.DisplayOrder),
-            ("price", "desc") => servicesQuery.OrderByDescending(x => x.PriceFromAmount.HasValue)
-                .ThenByDescending(x => x.PriceFromAmount)
-                .ThenBy(x => x.DisplayOrder),
-            ("price", _) => servicesQuery.OrderByDescending(x => x.PriceFromAmount.HasValue)
-                .ThenBy(x => x.PriceFromAmount)
-                .ThenBy(x => x.DisplayOrder),
             ("displayOrder", "desc") => servicesQuery.OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.Name),
             _ => servicesQuery.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
         };
@@ -298,5 +330,33 @@ public sealed class PublicSalonApiService(
                 DisplayOrder = x.DisplayOrder
             })
             .ToList();
+    }
+
+    private static PagedResponse<ServiceListItemResponse> CreatePagedResponse(
+        IReadOnlyCollection<ServiceListItemResponse> orderedItems,
+        int page,
+        int pageSize)
+    {
+        var totalCount = orderedItems.Count;
+        var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
+        var items = orderedItems
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        return new PagedResponse<ServiceListItemResponse>
+        {
+            Items = items,
+            Pagination = new PaginationMetadata
+            {
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                CurrentItemCount = items.Count,
+                TotalPages = totalPages,
+                HasNextPage = totalPages > 0 && page < totalPages,
+                HasPreviousPage = page > 1
+            }
+        };
     }
 }

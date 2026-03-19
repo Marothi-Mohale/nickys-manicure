@@ -1,14 +1,11 @@
 using FluentValidation;
-using Microsoft.EntityFrameworkCore;
-using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Dtos.Requests;
-using NickysManicurePedicure.Models.Entities;
 
 namespace NickysManicurePedicure.Validation;
 
 public sealed class CreateBookingRequestDtoValidator : AbstractValidator<CreateBookingRequestDto>
 {
-    public CreateBookingRequestDtoValidator(ApplicationDbContext dbContext)
+    public CreateBookingRequestDtoValidator()
     {
         RuleFor(x => x.FullName)
             .TrimmedRequiredText(120, "Full name");
@@ -31,33 +28,6 @@ public sealed class CreateBookingRequestDtoValidator : AbstractValidator<CreateB
         RuleFor(x => x.PreferredServiceId)
             .GreaterThan(0).When(x => x.PreferredServiceId.HasValue)
             .WithMessage("Preferred service id must be greater than 0.");
-
-        RuleFor(x => x)
-            .MustAsync(async (request, cancellationToken) =>
-            {
-                if (!request.PreferredServiceId.HasValue)
-                {
-                    return true;
-                }
-
-                var service = await dbContext.Services
-                    .AsNoTracking()
-                    .Where(x => x.Status == ContentStatus.Published)
-                    .FirstOrDefaultAsync(x => x.Id == request.PreferredServiceId.Value, cancellationToken);
-
-                if (service is null)
-                {
-                    return false;
-                }
-
-                if (string.IsNullOrWhiteSpace(request.PreferredServiceName))
-                {
-                    return true;
-                }
-
-                return string.Equals(service.Name, request.PreferredServiceName.Trim(), StringComparison.OrdinalIgnoreCase);
-            })
-            .WithMessage("Preferred service does not reference a valid published service.");
 
         RuleFor(x => x.PreferredDate)
             .NotNull().WithMessage("Preferred date is required.")

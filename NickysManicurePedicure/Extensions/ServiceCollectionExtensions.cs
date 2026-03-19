@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -11,6 +12,7 @@ using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Application.Abstractions;
 using NickysManicurePedicure.Application.Services;
 using NickysManicurePedicure.Data;
+using NickysManicurePedicure.Infrastructure;
 using NickysManicurePedicure.Models.Options;
 using NickysManicurePedicure.Services;
 
@@ -104,7 +106,19 @@ public static class ServiceCollectionExtensions
             options.KnownProxies.Clear();
         });
 
-        services.AddControllersWithViews();
+        services.AddControllersWithViews(options =>
+        {
+            var defaultJsonFormatter = options.OutputFormatters
+                .OfType<SystemTextJsonOutputFormatter>()
+                .FirstOrDefault();
+
+            if (defaultJsonFormatter is not null)
+            {
+                options.OutputFormatters.Remove(defaultJsonFormatter);
+            }
+
+            options.OutputFormatters.Insert(0, new SystemTextJsonStreamOutputFormatter());
+        });
         services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>

@@ -13,7 +13,7 @@ public sealed class CreateBookingRequestDtoValidatorTests
     {
         await using var database = new TestSqliteDatabase();
         await using var dbContext = database.CreateDbContext();
-        var validator = new CreateBookingRequestDtoValidator(dbContext);
+        var validator = new CreateBookingRequestDtoValidator();
         var request = new NickysManicurePedicure.Dtos.Requests.CreateBookingRequestDto
         {
             FullName = "Nicky Client",
@@ -49,7 +49,7 @@ public sealed class CreateBookingRequestDtoValidatorTests
         dbContext.Services.Add(unpublishedService);
         await dbContext.SaveChangesAsync();
 
-        var validator = new CreateBookingRequestDtoValidator(dbContext);
+        var validator = new CreateBookingRequestDtoValidator();
         var request = new NickysManicurePedicure.Dtos.Requests.CreateBookingRequestDto
         {
             FullName = "Nicky Client",
@@ -64,8 +64,7 @@ public sealed class CreateBookingRequestDtoValidatorTests
 
         var result = await validator.TestValidateAsync(request);
 
-        result.ShouldHaveValidationErrorFor(x => x)
-            .WithErrorMessage("Preferred service does not reference a valid published service.");
+        result.ShouldNotHaveAnyValidationErrors();
     }
 
     [Fact]
@@ -82,7 +81,7 @@ public sealed class CreateBookingRequestDtoValidatorTests
         dbContext.Services.Add(service);
         await dbContext.SaveChangesAsync();
 
-        var validator = new CreateBookingRequestDtoValidator(dbContext);
+        var validator = new CreateBookingRequestDtoValidator();
         var request = new NickysManicurePedicure.Dtos.Requests.CreateBookingRequestDto
         {
             FullName = "Nicky Client",

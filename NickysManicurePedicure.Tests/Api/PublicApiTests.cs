@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
@@ -145,6 +146,42 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
+    public async Task GetSwaggerDocument_ReturnsCoreApiPaths()
+    {
+        var response = await _client.GetAsync("/swagger/v1/swagger.json");
+
+        response.EnsureSuccessStatusCode();
+
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(stream);
+
+        var root = document.RootElement;
+        Assert.Equal("3.0.1", root.GetProperty("openapi").GetString());
+
+        var paths = root.GetProperty("paths");
+        Assert.True(paths.TryGetProperty("/api/services", out _));
+        Assert.True(paths.TryGetProperty("/api/bookings", out _));
+        Assert.True(paths.TryGetProperty("/api/contact-inquiries", out _));
+    }
+
+    [Fact]
+    public async Task GetApiHealth_ReturnsHealthyPayload()
+    {
+        var response = await _client.GetAsync("/api/health");
+
+        response.EnsureSuccessStatusCode();
+
+        await using var stream = await response.Content.ReadAsStreamAsync();
+        using var document = await JsonDocument.ParseAsync(stream);
+
+        var root = document.RootElement;
+        Assert.Equal("Healthy", root.GetProperty("status").GetString());
+        Assert.True(root.TryGetProperty("entries", out var entries));
+        Assert.True(entries.TryGetProperty("database", out _));
+        Assert.False(entries.TryGetProperty("self", out _));
+    }
+
+    [Fact]
     public async Task GetMissingBooking_ReturnsProblemDetailsNotFound()
     {
         var response = await _client.GetAsync("/api/bookings/999999");
@@ -188,6 +225,17 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
         var payload = await response.Content.ReadFromJsonAsync<ProblemDetails>();
         Assert.NotNull(payload);
         Assert.Equal(correlationId, payload.Extensions["correlationId"]?.ToString());
+    }
+
+    [Fact]
+    public async Task GetUnknownWebsiteRoute_ReturnsNotFoundPageInsteadOfServerError()
+    {
+        var response = await _client.GetAsync("/this-page-does-not-exist");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+
+        var html = await response.Content.ReadAsStringAsync();
+        Assert.Contains("The page you requested is unavailable.", html, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

@@ -65,7 +65,7 @@ public class HomeController(
     public IActionResult StatusCodePage(int code)
     {
         Response.StatusCode = code;
-        return View(code);
+        return View("StatusCode", code);
     }
 
     [HttpGet("/error")]
