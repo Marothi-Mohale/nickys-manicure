@@ -47,9 +47,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
             entity.Property(x => x.Question).HasMaxLength(200).IsRequired();
             entity.Property(x => x.Answer).HasMaxLength(700).IsRequired();
         });
-
-        modelBuilder.Entity<SalonService>().HasData(SeedDataExtensions.ServicesSeed);
-        modelBuilder.Entity<Testimonial>().HasData(SeedDataExtensions.TestimonialsSeed);
-        modelBuilder.Entity<FaqItem>().HasData(SeedDataExtensions.FaqSeed);
     }
 }

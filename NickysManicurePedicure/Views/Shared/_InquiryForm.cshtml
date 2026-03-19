@@ -10,25 +10,26 @@
     <div class="row g-3">
         <div class="col-md-6">
             <label asp-for="FullName" class="form-label"></label>
-            <input asp-for="FullName" class="form-control" autocomplete="name" />
+            <input asp-for="FullName" class="form-control" autocomplete="name" placeholder="Your full name" />
             <span asp-validation-for="FullName" class="text-danger small"></span>
         </div>
         <div class="col-md-6">
             <label asp-for="PhoneNumber" class="form-label"></label>
-            <input asp-for="PhoneNumber" class="form-control" autocomplete="tel" />
+            <input asp-for="PhoneNumber" class="form-control" autocomplete="tel" placeholder="068 251 8739" />
             <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
         </div>
         <div class="col-md-6">
             <label asp-for="Email" class="form-label"></label>
-            <input asp-for="Email" class="form-control" autocomplete="email" />
+            <input asp-for="Email" class="form-control" autocomplete="email" placeholder="nickyshunje@gmail.com" />
             <span asp-validation-for="Email" class="text-danger small"></span>
         </div>
         <div class="col-12">
             <label asp-for="Message" class="form-label"></label>
-            <textarea asp-for="Message" class="form-control" rows="5"></textarea>
+            <textarea asp-for="Message" class="form-control" rows="5" placeholder="Tell us how we can help, what service you are interested in, or when you would like to visit."></textarea>
             <span asp-validation-for="Message" class="text-danger small"></span>
         </div>
-        <div class="col-12">
+        <div class="col-12 contact-form-actions">
+            <p class="contact-form-note">Your enquiry is sent directly into the studio's database so it can be reviewed and followed up properly.</p>
             <button type="submit" class="btn btn-brand btn-lg">@Model.SubmitLabel</button>
         </div>
     </div>

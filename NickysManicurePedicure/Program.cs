@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Console;
 using NickysManicurePedicure.Data;
+using NickysManicurePedicure.Extensions;
 using NickysManicurePedicure.Models.Options;
-using NickysManicurePedicure.Services;
 
 namespace NickysManicurePedicure;
 
@@ -12,37 +13,41 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
         builder.Logging.ClearProviders();
-        builder.Logging.AddConsole();
+        builder.Logging.Configure(options =>
+        {
+            options.ActivityTrackingOptions =
+                ActivityTrackingOptions.TraceId |
+                ActivityTrackingOptions.SpanId |
+                ActivityTrackingOptions.ParentId;
+        });
+        builder.Logging.AddSimpleConsole(options =>
+        {
+            options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+            options.IncludeScopes = true;
+            options.SingleLine = true;
+            options.ColorBehavior = LoggerColorBehavior.Enabled;
+        });
         builder.Logging.AddDebug();
 
-        builder.Services.Configure<BusinessProfileOptions>(
-            builder.Configuration.GetSection(BusinessProfileOptions.SectionName));
-
-        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
-            ?? throw new InvalidOperationException(
-                "A PostgreSQL connection string is required. Set ConnectionStrings:DefaultConnection.");
-
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));
-
-        builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IInquiryService, InquiryService>();
-builder.Services.AddScoped<IBookingRequestService, BookingRequestService>();
+        builder.Services.AddApplicationOptions(builder.Configuration);
+        builder.Services.AddApplicationData(builder.Configuration, builder.Environment);
+        builder.Services.AddApplicationServices();
 
         var app = builder.Build();
 
-        if (!app.Environment.IsDevelopment())
-        {
-            app.UseExceptionHandler("/Home/Error");
-            app.UseHsts();
-        }
-        else
+        if (app.Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
         }
+        else
+        {
+            app.UseExceptionHandler("/error");
+            app.UseHsts();
+        }
 
-        app.UseStatusCodePagesWithReExecute("/Home/StatusCode", "?code={0}");
+        app.UseForwardedHeaders();
+        app.UseHttpLogging();
+        app.UseStatusCodePagesWithReExecute("/status/{0}");
         app.UseHttpsRedirection();
         app.UseRouting();
         app.UseAuthorization();

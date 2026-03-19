@@ -12,6 +12,8 @@ public class BookingRequestService(
         BookingRequestViewModel model,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(model);
+
         try
         {
             var inquiry = new Inquiry

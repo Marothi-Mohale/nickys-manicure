@@ -12,6 +12,8 @@ public class InquiryService(
         InquiryFormViewModel model,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(model);
+
         try
         {
             var inquiry = new Inquiry
@@ -28,9 +30,11 @@ public class InquiryService(
             await dbContext.SaveChangesAsync(cancellationToken);
 
             logger.LogInformation(
-                "Saved {InquiryType} inquiry from {Email} at {CreatedUtc}.",
+                "Saved {InquiryType} inquiry {InquiryId} from {Email} via {SourcePage} at {CreatedUtc}.",
                 inquiry.InquiryType,
+                inquiry.Id,
                 inquiry.Email,
+                inquiry.SourcePage,
                 inquiry.CreatedUtc);
 
             var message = inquiry.InquiryType == InquiryType.Booking

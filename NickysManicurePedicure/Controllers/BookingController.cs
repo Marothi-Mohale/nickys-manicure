@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models.Options;
+using NickysManicurePedicure.Routing;
 using NickysManicurePedicure.Services;
 using NickysManicurePedicure.ViewModels;
 
@@ -28,7 +29,7 @@ public class BookingController(
                 .ToListAsync(cancellationToken),
             BookingForm = new BookingRequestViewModel
             {
-                SourcePage = "Booking"
+                SourcePage = RouteSourcePages.Booking
             }
         };
 
@@ -39,11 +40,17 @@ public class BookingController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Submit(BookingRequestViewModel model, CancellationToken cancellationToken)
     {
+        model.SourcePage = RouteSourcePages.Normalize(model.SourcePage, RouteSourcePages.Booking);
+
         ViewData["Title"] = "Book Appointment";
         ViewData["Description"] = "Request your manicure or pedicure appointment with Nicky's Manicure & Pedicure in Cape Town.";
 
         if (!ModelState.IsValid)
         {
+            logger.LogInformation(
+                "Booking form validation failed for source page {SourcePage} and request {TraceIdentifier}.",
+                model.SourcePage,
+                HttpContext.TraceIdentifier);
             return await ReturnInvalidModelAsync(model, cancellationToken);
         }
 
@@ -54,8 +61,8 @@ public class BookingController(
             TempData["SuccessMessage"] = result.Message;
             return model.SourcePage switch
             {
-                "Services" => RedirectToAction("Index", "Services"),
-                "Booking" => RedirectToAction("Index", "Booking"),
+                RouteSourcePages.Services => RedirectToAction("Index", "Services"),
+                RouteSourcePages.Booking => RedirectToAction("Index", "Booking"),
                 _ => RedirectToAction("Index", "Home")
             };
         }
@@ -74,13 +81,13 @@ public class BookingController(
 
         return model.SourcePage switch
         {
-            "Services" => View("~/Views/Services/Index.cshtml", new ServicesPageViewModel
+            RouteSourcePages.Services => View("~/Views/Services/Index.cshtml", new ServicesPageViewModel
             {
                 Business = businessOptions.Value,
                 Services = services,
                 BookingForm = model
             }),
-            "Home" => View("~/Views/Home/Index.cshtml", new HomePageViewModel
+            RouteSourcePages.Home => View("~/Views/Home/Index.cshtml", new HomePageViewModel
             {
                 Business = businessOptions.Value,
                 FeaturedServices = services.Where(x => x.IsFeatured).ToList(),

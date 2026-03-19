@@ -1,0 +1,18 @@
+@model NickysManicurePedicure.Models.ErrorViewModel
+
+<section class="page-hero">
+    <div class="container">
+        <span class="eyebrow">Something Went Wrong</span>
+        <h1>We could not complete that request right now.</h1>
+        <p>Please try again in a moment, or contact the salon directly if you need immediate help.</p>
+        <div class="hero-actions mt-4">
+            <a class="btn btn-brand" asp-controller="Home" asp-action="Index">Return Home</a>
+            <a class="btn btn-outline-brand" asp-controller="Contact" asp-action="Index">Contact The Salon</a>
+        </div>
+
+        @if (Model.ShowRequestId)
+        {
+            <p class="mt-4 small text-muted">Reference: @Model.RequestId</p>
+        }
+    </div>
+</section>

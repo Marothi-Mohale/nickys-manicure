@@ -2,26 +2,45 @@
 
 <section class="page-hero">
     <div class="container">
-        <span class="eyebrow">Contact</span>
-        <h1>Reach out for service questions, bookings, and premium nail care support.</h1>
-        <p>Use the details below or send a message online. We will respond as quickly as possible.</p>
-        <div class="hero-actions mt-4">
-            <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Book Your Appointment</a>
-            <a class="btn btn-outline-brand btn-lg" href="@Model.Business.WhatsAppHref" target="_blank" rel="noopener noreferrer">WhatsApp Us</a>
+        <div class="contact-hero-shell">
+            <div class="contact-hero-copy">
+                <span class="eyebrow">Contact</span>
+                <h1>A warm, polished welcome starts before you even arrive.</h1>
+                <p>
+                    Whether you are planning a signature manicure, preparing for a special occasion, or simply have a question,
+                    Nicky's Manicure &amp; Pedicure offers attentive communication and a premium client experience from the very first message.
+                </p>
+                <div class="hero-actions mt-4">
+                    <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Book Your Appointment</a>
+                    <a class="btn btn-outline-brand btn-lg" href="@Model.Business.WhatsAppHref" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>
+                </div>
+            </div>
+            <aside class="contact-hero-aside">
+                <span class="contact-hero-label">Why clients feel confident reaching out</span>
+                <ul class="contact-hero-points">
+                    <li><i class="bi bi-patch-check-fill"></i> Thoughtful, professional communication</li>
+                    <li><i class="bi bi-shield-check"></i> Enquiries stored securely for follow-up</li>
+                    <li><i class="bi bi-heart"></i> Luxury service with a personal touch</li>
+                </ul>
+            </aside>
         </div>
     </div>
 </section>
 
-<section class="section-space pt-0">
+<section class="section-space pt-0 trust-ribbon">
     <div class="container">
-        <div class="cta-panel booking-cta-panel">
-            <div>
-                <span class="eyebrow">Prefer to book?</span>
-                <h2>Skip the back-and-forth and send a dedicated appointment request.</h2>
-                <p>The booking page captures your service, preferred date, and preferred time so we can confirm faster.</p>
+        <div class="trust-ribbon-grid contact-trust-grid">
+            <div class="trust-ribbon-item">
+                <i class="bi bi-stars"></i>
+                <span>Premium salon atmosphere</span>
             </div>
-            <div class="cta-actions">
-                <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Open Booking Form</a>
+            <div class="trust-ribbon-item">
+                <i class="bi bi-chat-text"></i>
+                <span>Fast, friendly appointment support</span>
+            </div>
+            <div class="trust-ribbon-item">
+                <i class="bi bi-geo-alt"></i>
+                <span>Conveniently located in Mowbray, Cape Town</span>
             </div>
         </div>
     </div>
@@ -29,30 +48,53 @@
 
 <section class="section-space">
     <div class="container">
-        <div class="row g-4">
-            <div class="col-lg-5">
-                <div class="contact-card h-100">
-                    <h2>Business details</h2>
-                    <ul class="contact-list">
-                        <li><strong>Phone:</strong> <a href="@Model.Business.PhoneHref">@Model.Business.Phone</a></li>
-                        <li><strong>Email:</strong> <a href="mailto:@Model.Business.Email">@Model.Business.Email</a></li>
-                        <li><strong>Address:</strong> @Model.Business.FullAddress</li>
-                    </ul>
+        <div class="section-heading text-start">
+            <span class="eyebrow">Get In Touch</span>
+            <h2>Choose the contact option that feels easiest for you.</h2>
+            <p>
+                Every enquiry is handled with care. Reach out by phone, email, WhatsApp, or the enquiry form below and we will guide you toward the right service or next appointment step.
+            </p>
+        </div>
 
-                    <h3>Business hours</h3>
-                    <ul class="feature-list">
-                        @foreach (var hour in Model.Business.BusinessHours)
-                        {
-                            <li>@hour</li>
-                        }
-                    </ul>
-                </div>
+        <div class="contact-card-grid">
+            <article class="contact-detail-card">
+                <span class="contact-detail-icon"><i class="bi bi-telephone-fill"></i></span>
+                <span class="contact-detail-kicker">Phone</span>
+                <h3>Call for direct assistance</h3>
+                <p>Ideal for appointment questions, location guidance, or time-sensitive beauty plans.</p>
+                <a class="contact-detail-link" href="@Model.Business.PhoneHref">068 251 8739</a>
+            </article>
+
+            <article class="contact-detail-card">
+                <span class="contact-detail-icon"><i class="bi bi-envelope-fill"></i></span>
+                <span class="contact-detail-kicker">Email</span>
+                <h3>Send a detailed enquiry</h3>
+                <p>A lovely option for service questions, preparation notes, or occasion-specific requests.</p>
+                <a class="contact-detail-link" href="mailto:@Model.Business.Email">nickyshunje@gmail.com</a>
+            </article>
+
+            <article class="contact-detail-card">
+                <span class="contact-detail-icon"><i class="bi bi-geo-alt-fill"></i></span>
+                <span class="contact-detail-kicker">Visit</span>
+                <h3>Easy-to-find salon location</h3>
+                <p>Conveniently situated for clients looking for polished, reliable nail care in Cape Town.</p>
+                <span class="contact-detail-text">72 Main Road, Mowbray, Cape Town, Western Cape 8001</span>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="section-space pt-0">
+    <div class="container">
+        <div class="contact-whatsapp-cta">
+            <div>
+                <span class="eyebrow">Quick Contact</span>
+                <h2>Prefer a faster conversation?</h2>
+                <p>Open WhatsApp for a quick, convenient chat if you would like help choosing a service or checking availability.</p>
             </div>
-            <div class="col-lg-7">
-                <div class="form-panel">
-                    <h2 class="h3 mb-3">Send a message</h2>
-                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
-                </div>
+            <div class="cta-actions">
+                <a class="btn btn-brand btn-lg" href="@Model.Business.WhatsAppHref" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+                <a class="btn btn-outline-brand btn-lg" href="@Model.Business.PhoneHref">Call the Salon</a>
             </div>
         </div>
     </div>
@@ -60,11 +102,53 @@
 
 <section class="section-space pt-0">
     <div class="container">
-        <div class="map-placeholder" role="img" aria-label="Map placeholder for 72 Main Road, Mowbray, Cape Town">
-            <div>
-                <span class="eyebrow">Map placeholder</span>
-                <h2 class="h3">72 Main Road, Mowbray, Cape Town</h2>
-                <p>Embed your preferred Google Maps or Apple Maps frame here when production hosting is configured.</p>
+        <div class="row g-4 align-items-stretch">
+            <div class="col-xl-5">
+                <div class="contact-information-stack">
+                    <div class="contact-card contact-story-card">
+                        <span class="eyebrow">Client Care</span>
+                        <h2>Premium service, thoughtful communication, and genuine attention to detail.</h2>
+                        <p>
+                            From first contact to final finish, Nicky's Manicure &amp; Pedicure is designed to feel calm,
+                            polished, and reassuring. We want every client to feel seen, welcomed, and beautifully looked after.
+                        </p>
+                        <ul class="contact-assurance-list">
+                            <li><i class="bi bi-check2-circle"></i> Friendly responses tailored to your enquiry</li>
+                            <li><i class="bi bi-check2-circle"></i> Guidance for bookings, treatments, and special occasions</li>
+                            <li><i class="bi bi-check2-circle"></i> Professional follow-up through the contact form</li>
+                        </ul>
+                    </div>
+
+                    <div class="contact-card contact-hours-card">
+                        <span class="eyebrow">Business Hours</span>
+                        <h3>Hours placeholder</h3>
+                        <p>
+                            A final business hours panel can be embedded here once the preferred studio schedule is confirmed.
+                            In the meantime, please call or WhatsApp for current availability and same-week appointment guidance.
+                        </p>
+                    </div>
+
+                    <div class="map-placeholder contact-map-card" role="img" aria-label="Map placeholder for 72 Main Road, Mowbray, Cape Town, Western Cape 8001">
+                        <div>
+                            <span class="eyebrow">Map &amp; Directions</span>
+                            <h3 class="h3">Embed placeholder</h3>
+                            <p>
+                                A live Google Maps or Apple Maps embed can be added here for turn-by-turn convenience.
+                                Address: 72 Main Road, Mowbray, Cape Town, Western Cape 8001.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-7">
+                <div class="form-panel contact-form-panel">
+                    <span class="eyebrow">Contact Form</span>
+                    <h2 class="h3 mb-3">Send your enquiry with confidence.</h2>
+                    <p class="contact-form-intro">
+                        Share your details below and your message will be stored securely in our system so we can follow up professionally.
+                    </p>
+                    @await Html.PartialAsync("_InquiryForm", Model.InquiryForm)
+                </div>
             </div>
         </div>
     </div>

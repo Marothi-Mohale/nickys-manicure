@@ -6,6 +6,7 @@ using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.Models.Options;
+using NickysManicurePedicure.Routing;
 using NickysManicurePedicure.ViewModels;
 
 namespace NickysManicurePedicure.Controllers;
@@ -35,7 +36,7 @@ public class HomeController(
                 .ToListAsync(cancellationToken),
             BookingForm = new BookingRequestViewModel
             {
-                SourcePage = "Home"
+                SourcePage = RouteSourcePages.Home
             }
         };
 
@@ -56,18 +57,22 @@ public class HomeController(
         return View();
     }
 
-    [ActionName("StatusCode")]
-    [Route("Home/StatusCode")]
+    [HttpGet("/status/{code:int}")]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult StatusCodePage(int code)
     {
         Response.StatusCode = code;
         return View(code);
     }
 
+    [HttpGet("/error")]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {
-        logger.LogWarning("Rendering error page for request {Path}.", HttpContext.Request.Path);
+        logger.LogError(
+            "Rendering error page for request {Path} with trace identifier {TraceIdentifier}.",
+            HttpContext.Request.Path,
+            HttpContext.TraceIdentifier);
 
         return View(new ErrorViewModel
         {

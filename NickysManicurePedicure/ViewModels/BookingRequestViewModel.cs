@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using NickysManicurePedicure.Routing;
 
 namespace NickysManicurePedicure.ViewModels;
 
@@ -41,6 +42,7 @@ public class BookingRequestViewModel : IValidatableObject
     [StringLength(2000, MinimumLength = 10, ErrorMessage = "Please enter between 10 and 2000 characters.")]
     public string Message { get; set; } = string.Empty;
 
+    [StringLength(30, ErrorMessage = "The source page value is too long.")]
     public string SourcePage { get; set; } = "Booking";
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
@@ -59,6 +61,13 @@ public class BookingRequestViewModel : IValidatableObject
             yield return new ValidationResult(
                 "Please add a little more detail so we can prepare for your appointment.",
                 [nameof(Message)]);
+        }
+
+        if (!RouteSourcePages.IsKnown(SourcePage))
+        {
+            yield return new ValidationResult(
+                "The booking source was not recognized.",
+                [nameof(SourcePage)]);
         }
     }
 }

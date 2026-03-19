@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using NickysManicurePedicure.Models.Entities;
+using NickysManicurePedicure.Models.Options;
 
 namespace NickysManicurePedicure.Data;
 
@@ -35,29 +37,28 @@ public static class SeedDataExtensions
         using var scope = services.CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("DatabaseInitialization");
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var databaseOptions = scope.ServiceProvider
+            .GetRequiredService<IOptions<DatabaseOptions>>()
+            .Value;
 
         try
         {
-            await dbContext.Database.EnsureCreatedAsync();
+            await InitializeSchemaAsync(dbContext, databaseOptions, logger);
 
-            if (!await dbContext.Services.AnyAsync())
+            if (!databaseOptions.SeedOnStartup)
             {
-                dbContext.Services.AddRange(ServicesSeed);
+                logger.LogInformation("Database seeding is disabled.");
+                return;
             }
 
-            if (!await dbContext.Testimonials.AnyAsync())
-            {
-                dbContext.Testimonials.AddRange(TestimonialsSeed);
-            }
-
-            if (!await dbContext.FaqItems.AnyAsync())
-            {
-                dbContext.FaqItems.AddRange(FaqSeed);
-            }
+            await SeedMissingAsync(dbContext.Services, ServicesSeed, item => item.Id, "services", logger);
+            await SeedMissingAsync(dbContext.Testimonials, TestimonialsSeed, item => item.Id, "testimonials", logger);
+            await SeedMissingAsync(dbContext.FaqItems, FaqSeed, item => item.Id, "faq items", logger);
 
             if (dbContext.ChangeTracker.HasChanges())
             {
                 await dbContext.SaveChangesAsync();
+                logger.LogInformation("Database seed changes were saved successfully.");
             }
         }
         catch (Exception ex)
@@ -65,5 +66,57 @@ public static class SeedDataExtensions
             logger.LogError(ex, "Unable to initialize the database.");
             throw;
         }
+    }
+
+    private static async Task InitializeSchemaAsync(
+        ApplicationDbContext dbContext,
+        DatabaseOptions databaseOptions,
+        ILogger logger)
+    {
+        var hasMigrations = dbContext.Database.GetMigrations().Any();
+
+        if (databaseOptions.ApplyMigrationsOnStartup && hasMigrations)
+        {
+            logger.LogInformation("Applying database migrations on startup.");
+            await dbContext.Database.MigrateAsync();
+            return;
+        }
+
+        if (databaseOptions.ApplyMigrationsOnStartup && !hasMigrations)
+        {
+            logger.LogWarning("ApplyMigrationsOnStartup is enabled, but no migrations were found. Falling back to EnsureCreated.");
+        }
+
+        logger.LogInformation("Ensuring database schema is created without migrations.");
+        await dbContext.Database.EnsureCreatedAsync();
+    }
+
+    private static async Task SeedMissingAsync<TEntity, TKey>(
+        DbSet<TEntity> dbSet,
+        IReadOnlyCollection<TEntity> seedItems,
+        Func<TEntity, TKey> keySelector,
+        string entityName,
+        ILogger logger)
+        where TEntity : class
+        where TKey : notnull
+    {
+        var existingEntities = await dbSet
+            .AsNoTracking()
+            .ToListAsync();
+        var existingKeySet = existingEntities
+            .Select(keySelector)
+            .ToHashSet();
+        var missingItems = seedItems
+            .Where(item => !existingKeySet.Contains(keySelector(item)))
+            .ToList();
+
+        if (missingItems.Count == 0)
+        {
+            logger.LogInformation("No missing seed data detected for {EntityName}.", entityName);
+            return;
+        }
+
+        await dbSet.AddRangeAsync(missingItems);
+        logger.LogInformation("Queued {Count} missing {EntityName} seed records.", missingItems.Count, entityName);
     }
 }

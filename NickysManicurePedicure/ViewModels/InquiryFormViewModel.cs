@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using NickysManicurePedicure.Models.Entities;
+using NickysManicurePedicure.Routing;
 
 namespace NickysManicurePedicure.ViewModels;
 
-public class InquiryFormViewModel
+public class InquiryFormViewModel : IValidatableObject
 {
     public InquiryType InquiryType { get; set; } = InquiryType.Booking;
 
@@ -28,7 +29,46 @@ public class InquiryFormViewModel
     [StringLength(2000, MinimumLength = 10, ErrorMessage = "Please enter between 10 and 2000 characters.")]
     public string Message { get; set; } = string.Empty;
 
+    [StringLength(30, ErrorMessage = "The source page value is too long.")]
     public string SourcePage { get; set; } = "Home";
 
     public string SubmitLabel => "Send Message";
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (string.IsNullOrWhiteSpace(FullName))
+        {
+            yield return new ValidationResult(
+                "Please enter your full name so we know who to contact.",
+                [nameof(FullName)]);
+        }
+
+        if (string.IsNullOrWhiteSpace(PhoneNumber))
+        {
+            yield return new ValidationResult(
+                "Please enter your phone number so we can reply quickly.",
+                [nameof(PhoneNumber)]);
+        }
+
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            yield return new ValidationResult(
+                "Please enter your email address.",
+                [nameof(Email)]);
+        }
+
+        if (!string.IsNullOrWhiteSpace(Message) && Message.Trim().Length < 10)
+        {
+            yield return new ValidationResult(
+                "Please tell us a little more so we can assist properly.",
+                [nameof(Message)]);
+        }
+
+        if (!RouteSourcePages.IsKnown(SourcePage))
+        {
+            yield return new ValidationResult(
+                "The message source was not recognized.",
+                [nameof(SourcePage)]);
+        }
+    }
 }
