@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Infrastructure;
@@ -74,9 +75,12 @@ public sealed class ExceptionHandlingMiddleware(
                 environment.IsDevelopment());
 
             context.Response.StatusCode = problemDetails.Status ?? StatusCodes.Status500InternalServerError;
-
             context.Response.ContentType = "application/problem+json";
-            await context.Response.WriteAsJsonAsync(problemDetails);
+            await JsonSerializer.SerializeAsync(
+                context.Response.Body,
+                problemDetails,
+                new JsonSerializerOptions(JsonSerializerDefaults.Web),
+                context.RequestAborted);
         }
     }
 

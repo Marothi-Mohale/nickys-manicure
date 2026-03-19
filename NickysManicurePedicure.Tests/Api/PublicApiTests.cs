@@ -30,6 +30,8 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
         Assert.NotNull(payload);
         Assert.Equal(1, payload.Pagination.Page);
         Assert.Equal(2, payload.Pagination.PageSize);
+        Assert.InRange(payload.Pagination.CurrentItemCount, 1, 2);
+        Assert.True(payload.Pagination.TotalCount >= payload.Pagination.CurrentItemCount);
         Assert.NotEmpty(payload.Items);
         Assert.All(payload.Items, item => Assert.True(item.IsFeatured));
     }
@@ -168,6 +170,24 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
         Assert.NotNull(payload);
         Assert.Equal(404, payload.Status);
         Assert.Equal("resource_not_found", payload.Extensions["errorCode"]?.ToString());
+    }
+
+    [Fact]
+    public async Task GetUnknownApiRoute_EchoesCorrelationId()
+    {
+        const string correlationId = "test-correlation-id";
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/does-not-exist");
+        request.Headers.Add("X-Correlation-ID", correlationId);
+
+        var response = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.True(response.Headers.TryGetValues("X-Correlation-ID", out var headerValues));
+        Assert.Contains(correlationId, headerValues);
+
+        var payload = await response.Content.ReadFromJsonAsync<ProblemDetails>();
+        Assert.NotNull(payload);
+        Assert.Equal(correlationId, payload.Extensions["correlationId"]?.ToString());
     }
 
     [Fact]
@@ -409,6 +429,78 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
         var payload = await response.Content.ReadFromJsonAsync<PagedResponse<BookingReadResponse>>();
         Assert.NotNull(payload);
         Assert.NotEmpty(payload.Items);
+    }
+
+    [Fact]
+    public async Task GetAdminBookingsRoute_CanFilterByStatus()
+    {
+        var createResponse = await _client.PostAsJsonAsync("/api/bookings", new CreateBookingRequestDto
+        {
+            FullName = "Admin Filter Client",
+            Email = "admin-filter@example.com",
+            PhoneNumber = "+27682518739",
+            PreferredServiceId = 1,
+            PreferredDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(6)),
+            PreferredTime = new TimeOnly(15, 0),
+            Message = "Please confirm my luxury service.",
+            SourcePage = "Api"
+        });
+
+        var createdBooking = await createResponse.Content.ReadFromJsonAsync<BookingCreateResponse>();
+        Assert.NotNull(createdBooking);
+
+        var patchResponse = await _client.PatchAsJsonAsync(
+            $"/api/admin/bookings/{createdBooking.BookingId}/status",
+            new UpdateBookingStatusDto
+            {
+                Status = "Confirmed",
+                AdminNotes = "Confirmed for admin route test."
+            });
+
+        patchResponse.EnsureSuccessStatusCode();
+
+        var response = await _client.GetAsync("/api/admin/bookings?status=Confirmed&page=1&pageSize=10");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<BookingReadResponse>>();
+        Assert.NotNull(payload);
+        Assert.Contains(payload.Items, item => item.Id == createdBooking.BookingId && item.Status == "Confirmed");
+    }
+
+    [Fact]
+    public async Task GetAdminContactInquiriesRoute_CanFilterByStatus()
+    {
+        var createResponse = await _client.PostAsJsonAsync("/api/contact-inquiries", new CreateContactInquiryDto
+        {
+            FullName = "Admin Inquiry Filter",
+            Email = "admin-inquiry@example.com",
+            PhoneNumber = "+27682518739",
+            Subject = "Status update",
+            Message = "Please let me know if there is a bridal package available.",
+            SourcePage = "Api"
+        });
+
+        var createdInquiry = await createResponse.Content.ReadFromJsonAsync<ContactInquiryCreateResponse>();
+        Assert.NotNull(createdInquiry);
+
+        var patchResponse = await _client.PatchAsJsonAsync(
+            $"/api/admin/contact-inquiries/{createdInquiry.InquiryId}/status",
+            new UpdateContactInquiryStatusDto
+            {
+                Status = "Responded",
+                AdminNotes = "Responded for admin route test."
+            });
+
+        patchResponse.EnsureSuccessStatusCode();
+
+        var response = await _client.GetAsync("/api/admin/contact-inquiries?status=Responded&page=1&pageSize=10");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<ContactInquiryReadResponse>>();
+        Assert.NotNull(payload);
+        Assert.Contains(payload.Items, item => item.Id == createdInquiry.InquiryId && item.Status == "Responded");
     }
 
     [Fact]
