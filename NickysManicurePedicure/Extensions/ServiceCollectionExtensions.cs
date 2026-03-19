@@ -1,5 +1,6 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -163,14 +164,18 @@ public static class ServiceCollectionExtensions
 
     private static void EnsureSqliteDataDirectoryExists(string contentRootPath, string connectionString)
     {
-        const string prefix = "Data Source=";
+        SqliteConnectionStringBuilder builder;
 
-        if (!connectionString.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+        try
+        {
+            builder = new SqliteConnectionStringBuilder(connectionString);
+        }
+        catch (ArgumentException)
         {
             return;
         }
 
-        var databasePath = connectionString[prefix.Length..].Trim().Trim('"');
+        var databasePath = builder.DataSource?.Trim();
 
         if (string.IsNullOrWhiteSpace(databasePath) || databasePath == ":memory:" || Path.IsPathRooted(databasePath))
         {

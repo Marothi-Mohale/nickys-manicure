@@ -139,10 +139,10 @@ public static class SeedDataExtensions
 
         if (databaseOptions.ApplyMigrationsOnStartup && !hasMigrations)
         {
-            logger.LogWarning("ApplyMigrationsOnStartup is enabled, but no migrations were found. Falling back to EnsureCreated.");
+            logger.LogWarning("ApplyMigrationsOnStartup is enabled, but no migrations were found. Falling back to EnsureCreated. Add an initial migration before production use or a future provider switch.");
         }
 
-        logger.LogInformation("Ensuring database schema is created without migrations.");
+        logger.LogInformation("Ensuring database schema is created without migrations. This is suitable for local/demo use but should be replaced by migrations before production rollout.");
         await dbContext.Database.EnsureCreatedAsync();
     }
 
@@ -227,23 +227,29 @@ public static class SeedDataExtensions
         }
         else
         {
-            profile.Name = options.Name;
-            profile.Tagline = options.Tagline;
-            profile.Description = options.Description;
-            profile.Phone = options.Phone;
-            profile.PhoneHref = options.PhoneHref;
-            profile.Email = options.Email;
-            profile.AddressLine1 = options.AddressLine1;
-            profile.Suburb = options.Suburb;
-            profile.City = options.City;
-            profile.Region = options.Region;
-            profile.PostalCode = options.PostalCode;
-            profile.WhatsAppHref = options.WhatsAppHref;
-            profile.InstagramHandle = options.InstagramHandle;
-            profile.YearsOfExperience = options.YearsOfExperience;
-            profile.HeroHeadline = options.HeroHeadline;
-            profile.HeroSubheadline = options.HeroSubheadline;
-            profile.UpdatedAtUtc = DateTime.UtcNow;
+            var hasChanges = false;
+
+            hasChanges |= SetIfChanged(profile, x => x.Name, options.Name);
+            hasChanges |= SetIfChanged(profile, x => x.Tagline, options.Tagline);
+            hasChanges |= SetIfChanged(profile, x => x.Description, options.Description);
+            hasChanges |= SetIfChanged(profile, x => x.Phone, options.Phone);
+            hasChanges |= SetIfChanged(profile, x => x.PhoneHref, options.PhoneHref);
+            hasChanges |= SetIfChanged(profile, x => x.Email, options.Email);
+            hasChanges |= SetIfChanged(profile, x => x.AddressLine1, options.AddressLine1);
+            hasChanges |= SetIfChanged(profile, x => x.Suburb, options.Suburb);
+            hasChanges |= SetIfChanged(profile, x => x.City, options.City);
+            hasChanges |= SetIfChanged(profile, x => x.Region, options.Region);
+            hasChanges |= SetIfChanged(profile, x => x.PostalCode, options.PostalCode);
+            hasChanges |= SetIfChanged(profile, x => x.WhatsAppHref, options.WhatsAppHref);
+            hasChanges |= SetIfChanged(profile, x => x.InstagramHandle, options.InstagramHandle);
+            hasChanges |= SetIfChanged(profile, x => x.YearsOfExperience, options.YearsOfExperience);
+            hasChanges |= SetIfChanged(profile, x => x.HeroHeadline, options.HeroHeadline);
+            hasChanges |= SetIfChanged(profile, x => x.HeroSubheadline, options.HeroSubheadline);
+
+            if (hasChanges)
+            {
+                logger.LogInformation("Updated seeded business profile content from configuration.");
+            }
         }
 
         var seededHours = BuildBusinessHourSeed();
@@ -319,6 +325,30 @@ public static class SeedDataExtensions
         target.IsFeatured = seed.IsFeatured;
         target.Status = seed.Status;
         target.DisplayOrder = seed.DisplayOrder;
+    }
+
+    private static bool SetIfChanged<TEntity, TValue>(
+        TEntity entity,
+        System.Linq.Expressions.Expression<Func<TEntity, TValue>> propertyExpression,
+        TValue newValue)
+        where TEntity : class
+    {
+        if (propertyExpression.Body is not System.Linq.Expressions.MemberExpression memberExpression)
+        {
+            throw new InvalidOperationException("Property expression must target a member.");
+        }
+
+        var propertyInfo = memberExpression.Member as System.Reflection.PropertyInfo
+            ?? throw new InvalidOperationException("Property expression must target a property.");
+
+        var currentValue = (TValue?)propertyInfo.GetValue(entity);
+        if (EqualityComparer<TValue>.Default.Equals(currentValue!, newValue))
+        {
+            return false;
+        }
+
+        propertyInfo.SetValue(entity, newValue);
+        return true;
     }
 
     private static IReadOnlyList<BusinessHour> BuildBusinessHourSeed() =>

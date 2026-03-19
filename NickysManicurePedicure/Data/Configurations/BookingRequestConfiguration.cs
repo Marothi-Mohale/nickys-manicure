@@ -15,6 +15,8 @@ public sealed class BookingRequestConfiguration : IEntityTypeConfiguration<Booki
         builder.Property(x => x.Message).HasMaxLength(2000).IsRequired();
         builder.Property(x => x.SourcePage).HasMaxLength(40).IsRequired();
         builder.Property(x => x.AdminNotes).HasMaxLength(1000);
+        builder.Property(x => x.PreferredDate).IsRequired();
+        builder.Property(x => x.PreferredTime).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
 
         builder.HasIndex(x => x.CreatedAtUtc);
