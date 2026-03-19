@@ -108,12 +108,21 @@ public static class SeedDataExtensions
                 ApplyGallerySeed,
                 "gallery items",
                 logger);
-            await SeedBusinessProfileAsync(dbContext, businessProfileOptions, logger);
+            var businessSeedOutcome = await SeedBusinessProfileAsync(dbContext, businessProfileOptions, logger);
 
             if (dbContext.ChangeTracker.HasChanges())
             {
                 await dbContext.SaveChangesAsync();
                 logger.LogInformation("Database seed changes were saved successfully.");
+            }
+            else
+            {
+                logger.LogInformation(
+                    "Database seed completed with no pending changes. Business profile added: {BusinessProfileAdded}, updated: {BusinessProfileUpdated}. Business hours added: {BusinessHoursAdded}, updated: {BusinessHoursUpdated}.",
+                    businessSeedOutcome.ProfileAdded,
+                    businessSeedOutcome.ProfileUpdated,
+                    businessSeedOutcome.BusinessHoursAdded,
+                    businessSeedOutcome.BusinessHoursUpdated);
             }
         }
         catch (Exception ex)
@@ -150,7 +159,7 @@ public static class SeedDataExtensions
         DbSet<TEntity> dbSet,
         IReadOnlyCollection<TEntity> seedItems,
         Func<TEntity, TKey> keySelector,
-        Action<TEntity, TEntity> applySeedValues,
+        Func<TEntity, TEntity, bool> applySeedValues,
         string entityName,
         ILogger logger)
         where TEntity : class
@@ -171,8 +180,10 @@ public static class SeedDataExtensions
                 continue;
             }
 
-            applySeedValues(existingEntity, seedItem);
-            updatedCount++;
+            if (applySeedValues(existingEntity, seedItem))
+            {
+                updatedCount++;
+            }
         }
 
         if (addedCount == 0 && updatedCount == 0)
@@ -188,11 +199,12 @@ public static class SeedDataExtensions
             updatedCount);
     }
 
-    private static async Task SeedBusinessProfileAsync(
+    private static async Task<BusinessProfileSeedOutcome> SeedBusinessProfileAsync(
         ApplicationDbContext dbContext,
         BusinessProfileOptions options,
         ILogger logger)
     {
+        var outcome = new BusinessProfileSeedOutcome();
         var profile = await dbContext.BusinessProfiles
             .Include(x => x.BusinessHours)
             .FirstOrDefaultAsync(x => x.Id == 1);
@@ -223,6 +235,7 @@ public static class SeedDataExtensions
             };
 
             dbContext.BusinessProfiles.Add(profile);
+            outcome.ProfileAdded = true;
             logger.LogInformation("Queued initial business profile seed record.");
         }
         else
@@ -248,6 +261,7 @@ public static class SeedDataExtensions
 
             if (hasChanges)
             {
+                outcome.ProfileUpdated = true;
                 logger.LogInformation("Updated seeded business profile content from configuration.");
             }
         }
@@ -255,76 +269,107 @@ public static class SeedDataExtensions
         var seededHours = BuildBusinessHourSeed();
         var existingByDay = profile.BusinessHours.ToDictionary(x => x.DayOfWeek);
 
+        var businessHoursChanged = false;
+
         foreach (var seededHour in seededHours)
         {
             if (!existingByDay.TryGetValue(seededHour.DayOfWeek, out var existingHour))
             {
                 profile.BusinessHours.Add(seededHour);
+                outcome.BusinessHoursAdded++;
+                businessHoursChanged = true;
                 continue;
             }
 
-            existingHour.IsClosed = seededHour.IsClosed;
-            existingHour.OpenTime = seededHour.OpenTime;
-            existingHour.CloseTime = seededHour.CloseTime;
-            existingHour.Notes = seededHour.Notes;
-            existingHour.DisplayOrder = seededHour.DisplayOrder;
+            var changed = false;
+            changed |= SetIfChanged(existingHour, x => x.IsClosed, seededHour.IsClosed);
+            changed |= SetIfChanged(existingHour, x => x.OpenTime, seededHour.OpenTime);
+            changed |= SetIfChanged(existingHour, x => x.CloseTime, seededHour.CloseTime);
+            changed |= SetIfChanged(existingHour, x => x.Notes, seededHour.Notes);
+            changed |= SetIfChanged(existingHour, x => x.DisplayOrder, seededHour.DisplayOrder);
+
+            if (changed)
+            {
+                outcome.BusinessHoursUpdated++;
+                businessHoursChanged = true;
+            }
         }
+
+        if (businessHoursChanged)
+        {
+            logger.LogInformation(
+                "Updated seeded business hours. Added {AddedCount}, updated {UpdatedCount}.",
+                outcome.BusinessHoursAdded,
+                outcome.BusinessHoursUpdated);
+        }
+
+        return outcome;
     }
 
-    private static void ApplyServiceCategorySeed(ServiceCategory target, ServiceCategory seed)
+    private static bool ApplyServiceCategorySeed(ServiceCategory target, ServiceCategory seed)
     {
-        target.Name = seed.Name;
-        target.Slug = seed.Slug;
-        target.Description = seed.Description;
-        target.Status = seed.Status;
-        target.DisplayOrder = seed.DisplayOrder;
+        var changed = false;
+        changed |= SetIfChanged(target, x => x.Name, seed.Name);
+        changed |= SetIfChanged(target, x => x.Slug, seed.Slug);
+        changed |= SetIfChanged(target, x => x.Description, seed.Description);
+        changed |= SetIfChanged(target, x => x.Status, seed.Status);
+        changed |= SetIfChanged(target, x => x.DisplayOrder, seed.DisplayOrder);
+        return changed;
     }
 
-    private static void ApplyServiceSeed(Service target, Service seed)
+    private static bool ApplyServiceSeed(Service target, Service seed)
     {
-        target.ServiceCategoryId = seed.ServiceCategoryId;
-        target.Name = seed.Name;
-        target.Slug = seed.Slug;
-        target.Description = seed.Description;
-        target.DurationLabel = seed.DurationLabel;
-        target.PriceFromLabel = seed.PriceFromLabel;
-        target.PriceFromAmount = seed.PriceFromAmount;
-        target.IsFeatured = seed.IsFeatured;
-        target.Status = seed.Status;
-        target.DisplayOrder = seed.DisplayOrder;
+        var changed = false;
+        changed |= SetIfChanged(target, x => x.ServiceCategoryId, seed.ServiceCategoryId);
+        changed |= SetIfChanged(target, x => x.Name, seed.Name);
+        changed |= SetIfChanged(target, x => x.Slug, seed.Slug);
+        changed |= SetIfChanged(target, x => x.Description, seed.Description);
+        changed |= SetIfChanged(target, x => x.DurationLabel, seed.DurationLabel);
+        changed |= SetIfChanged(target, x => x.PriceFromLabel, seed.PriceFromLabel);
+        changed |= SetIfChanged(target, x => x.PriceFromAmount, seed.PriceFromAmount);
+        changed |= SetIfChanged(target, x => x.IsFeatured, seed.IsFeatured);
+        changed |= SetIfChanged(target, x => x.Status, seed.Status);
+        changed |= SetIfChanged(target, x => x.DisplayOrder, seed.DisplayOrder);
+        return changed;
     }
 
-    private static void ApplyTestimonialSeed(Testimonial target, Testimonial seed)
+    private static bool ApplyTestimonialSeed(Testimonial target, Testimonial seed)
     {
-        target.ClientName = seed.ClientName;
-        target.Quote = seed.Quote;
-        target.Rating = seed.Rating;
-        target.Status = seed.Status;
-        target.IsFeatured = seed.IsFeatured;
-        target.IsApproved = seed.IsApproved;
-        target.DisplayOrder = seed.DisplayOrder;
+        var changed = false;
+        changed |= SetIfChanged(target, x => x.ClientName, seed.ClientName);
+        changed |= SetIfChanged(target, x => x.Quote, seed.Quote);
+        changed |= SetIfChanged(target, x => x.Rating, seed.Rating);
+        changed |= SetIfChanged(target, x => x.Status, seed.Status);
+        changed |= SetIfChanged(target, x => x.IsFeatured, seed.IsFeatured);
+        changed |= SetIfChanged(target, x => x.IsApproved, seed.IsApproved);
+        changed |= SetIfChanged(target, x => x.DisplayOrder, seed.DisplayOrder);
+        return changed;
     }
 
-    private static void ApplyFaqSeed(FaqItem target, FaqItem seed)
+    private static bool ApplyFaqSeed(FaqItem target, FaqItem seed)
     {
-        target.Question = seed.Question;
-        target.Answer = seed.Answer;
-        target.IsActive = seed.IsActive;
-        target.Status = seed.Status;
-        target.DisplayOrder = seed.DisplayOrder;
+        var changed = false;
+        changed |= SetIfChanged(target, x => x.Question, seed.Question);
+        changed |= SetIfChanged(target, x => x.Answer, seed.Answer);
+        changed |= SetIfChanged(target, x => x.IsActive, seed.IsActive);
+        changed |= SetIfChanged(target, x => x.Status, seed.Status);
+        changed |= SetIfChanged(target, x => x.DisplayOrder, seed.DisplayOrder);
+        return changed;
     }
 
-    private static void ApplyGallerySeed(GalleryItem target, GalleryItem seed)
+    private static bool ApplyGallerySeed(GalleryItem target, GalleryItem seed)
     {
-        target.Title = seed.Title;
-        target.Description = seed.Description;
-        target.Category = seed.Category;
-        target.ImageUrl = seed.ImageUrl;
-        target.ThumbnailUrl = seed.ThumbnailUrl;
-        target.AltText = seed.AltText;
-        target.IsFeatured = seed.IsFeatured;
-        target.Status = seed.Status;
-        target.DisplayOrder = seed.DisplayOrder;
+        var changed = false;
+        changed |= SetIfChanged(target, x => x.Title, seed.Title);
+        changed |= SetIfChanged(target, x => x.Description, seed.Description);
+        changed |= SetIfChanged(target, x => x.Category, seed.Category);
+        changed |= SetIfChanged(target, x => x.ImageUrl, seed.ImageUrl);
+        changed |= SetIfChanged(target, x => x.ThumbnailUrl, seed.ThumbnailUrl);
+        changed |= SetIfChanged(target, x => x.AltText, seed.AltText);
+        changed |= SetIfChanged(target, x => x.IsFeatured, seed.IsFeatured);
+        changed |= SetIfChanged(target, x => x.Status, seed.Status);
+        changed |= SetIfChanged(target, x => x.DisplayOrder, seed.DisplayOrder);
+        return changed;
     }
 
     private static bool SetIfChanged<TEntity, TValue>(
@@ -361,4 +406,12 @@ public static class SeedDataExtensions
         new() { Id = 6, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Saturday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(16, 0), DisplayOrder = 6 },
         new() { Id = 7, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Sunday, IsClosed = true, Notes = "By appointment", DisplayOrder = 7 }
     ];
+
+    private sealed class BusinessProfileSeedOutcome
+    {
+        public bool ProfileAdded { get; set; }
+        public bool ProfileUpdated { get; set; }
+        public int BusinessHoursAdded { get; set; }
+        public int BusinessHoursUpdated { get; set; }
+    }
 }

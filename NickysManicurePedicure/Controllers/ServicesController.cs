@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.Models.Options;
+using NickysManicurePedicure.Routing;
 using NickysManicurePedicure.ViewModels;
 
 namespace NickysManicurePedicure.Controllers;
@@ -21,12 +22,13 @@ public class ServicesController(
         {
             Business = businessOptions.Value,
             Services = await dbContext.Services
+                .AsNoTracking()
                 .Where(x => x.Status == ContentStatus.Published)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
             BookingForm = new BookingRequestViewModel
             {
-                SourcePage = "Services"
+                SourcePage = RouteSourcePages.Services
             }
         };
 

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Logging.Console;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Extensions;
@@ -13,6 +14,8 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "DataProtectionKeys");
+        Directory.CreateDirectory(dataProtectionKeysPath);
 
         builder.Logging.ClearProviders();
         builder.Logging.Configure(options =>
@@ -30,6 +33,10 @@ public class Program
             options.ColorBehavior = LoggerColorBehavior.Enabled;
         });
         builder.Logging.AddDebug();
+        builder.Services
+            .AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath))
+            .SetApplicationName("NickysManicurePedicure");
 
         builder.Services.AddApplicationOptions(builder.Configuration);
         builder.Services.AddApplicationData(builder.Configuration, builder.Environment);

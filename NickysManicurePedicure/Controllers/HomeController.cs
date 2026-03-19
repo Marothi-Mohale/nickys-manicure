@@ -25,16 +25,19 @@ public class HomeController(
         {
             Business = businessOptions.Value,
             FeaturedServices = await dbContext.Services
+                .AsNoTracking()
                 .Where(x => x.Status == ContentStatus.Published)
                 .Where(x => x.IsFeatured)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
             Testimonials = await dbContext.Testimonials
-                .Where(x => x.Status == ContentStatus.Published)
+                .AsNoTracking()
+                .Where(x => x.Status == ContentStatus.Published && x.IsApproved)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
             FaqItems = await dbContext.FaqItems
-                .Where(x => x.Status == ContentStatus.Published)
+                .AsNoTracking()
+                .Where(x => x.Status == ContentStatus.Published && x.IsActive)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
             BookingForm = new BookingRequestViewModel

@@ -21,7 +21,8 @@ public class AboutController(
         {
             Business = businessOptions.Value,
             Testimonials = await dbContext.Testimonials
-                .Where(x => x.Status == ContentStatus.Published)
+                .AsNoTracking()
+                .Where(x => x.Status == ContentStatus.Published && x.IsApproved)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken)
         };
