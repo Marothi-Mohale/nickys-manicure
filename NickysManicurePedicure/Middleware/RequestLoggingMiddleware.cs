@@ -61,7 +61,11 @@ public sealed class RequestLoggingMiddleware(
         statusCode switch
         {
             >= 500 => LogLevel.Warning,
-            >= 400 => LogLevel.Warning,
+            StatusCodes.Status401Unauthorized => LogLevel.Warning,
+            StatusCodes.Status403Forbidden => LogLevel.Warning,
+            StatusCodes.Status409Conflict => LogLevel.Warning,
+            StatusCodes.Status429TooManyRequests => LogLevel.Warning,
+            >= 400 => LogLevel.Information,
             _ => LogLevel.Information
         };
 

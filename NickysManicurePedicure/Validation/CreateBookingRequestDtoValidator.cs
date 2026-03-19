@@ -55,7 +55,7 @@ public sealed class CreateBookingRequestDtoValidator : AbstractValidator<CreateB
                     return true;
                 }
 
-                return string.Equals(service.Name, request.PreferredServiceName.Trim(), StringComparison.Ordinal);
+                return string.Equals(service.Name, request.PreferredServiceName.Trim(), StringComparison.OrdinalIgnoreCase);
             })
             .WithMessage("Preferred service does not reference a valid published service.");
 

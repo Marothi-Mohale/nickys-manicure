@@ -8,6 +8,7 @@ public sealed class UpsertServiceRequest
     public string Description { get; init; } = string.Empty;
     public string DurationLabel { get; init; } = string.Empty;
     public string PriceFromLabel { get; init; } = string.Empty;
+    public decimal? PriceFromAmount { get; init; }
     public bool IsFeatured { get; init; }
     public string Status { get; init; } = "Published";
     public int DisplayOrder { get; init; }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
@@ -100,8 +101,15 @@ public sealed class ContactInquiryAdminService(
             return null;
         }
 
-        inquiry.Status = Enum.Parse<ContactInquiryStatus>(request.Status, ignoreCase: true);
-        inquiry.AdminNotes = string.IsNullOrWhiteSpace(request.AdminNotes) ? inquiry.AdminNotes : request.AdminNotes.Trim();
+        if (!Enum.TryParse<ContactInquiryStatus>(request.Status, ignoreCase: true, out var parsedStatus))
+        {
+            throw new BadRequestException("The requested inquiry status is invalid.", "invalid_inquiry_status");
+        }
+
+        inquiry.Status = parsedStatus;
+        inquiry.AdminNotes = request.AdminNotes is null
+            ? inquiry.AdminNotes
+            : string.IsNullOrWhiteSpace(request.AdminNotes) ? null : request.AdminNotes.Trim();
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

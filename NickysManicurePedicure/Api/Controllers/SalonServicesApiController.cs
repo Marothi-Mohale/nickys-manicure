@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Dtos.Responses;
@@ -28,6 +29,6 @@ public sealed class SalonServicesApiController(IPublicSalonApiService publicSalo
         CancellationToken cancellationToken)
     {
         var service = await publicSalonApiService.GetServiceByIdAsync(id, cancellationToken);
-        return service is null ? NotFound() : Ok(service);
+        return Ok(service ?? throw new NotFoundException("Service", id));
     }
 }

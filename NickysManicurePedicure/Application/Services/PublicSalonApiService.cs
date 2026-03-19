@@ -243,6 +243,7 @@ public sealed class PublicSalonApiService(
     {
         var profile = await dbContext.BusinessProfiles
             .AsNoTracking()
+            .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (profile is null)
@@ -275,6 +276,7 @@ public sealed class PublicSalonApiService(
         var profile = await dbContext.BusinessProfiles
             .AsNoTracking()
             .Include(x => x.BusinessHours.OrderBy(hour => hour.DisplayOrder))
+            .OrderBy(x => x.Id)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (profile is null)

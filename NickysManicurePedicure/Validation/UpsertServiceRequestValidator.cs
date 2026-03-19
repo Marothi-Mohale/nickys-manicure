@@ -28,6 +28,10 @@ public sealed class UpsertServiceRequestValidator : AbstractValidator<UpsertServ
         RuleFor(x => x.PriceFromLabel)
             .TrimmedRequiredText(60, "Price from label");
 
+        RuleFor(x => x.PriceFromAmount)
+            .GreaterThanOrEqualTo(0).When(x => x.PriceFromAmount.HasValue)
+            .WithMessage("Price from amount must be 0 or greater.");
+
         RuleFor(x => x.Status)
             .Must(BeKnownContentStatus)
             .WithMessage("Status must be Draft, Published, or Archived.");

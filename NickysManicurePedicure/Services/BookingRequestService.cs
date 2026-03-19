@@ -1,12 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+using NickysManicurePedicure.Application.Abstractions;
 using NickysManicurePedicure.Data;
-using NickysManicurePedicure.Models.Entities;
+using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.ViewModels;
 
 namespace NickysManicurePedicure.Services;
 
 public class BookingRequestService(
-    ApplicationDbContext dbContext,
+    IBookingPublicCommandService bookingPublicCommandService,
     ILogger<BookingRequestService> logger) : IBookingRequestService
 {
     public async Task<SubmissionResult> CreateAsync(
@@ -17,41 +17,28 @@ public class BookingRequestService(
 
         try
         {
-            var requestedServiceName = model.PreferredService.Trim();
-            var matchedService = await dbContext.Services
-                .AsNoTracking()
-                .FirstOrDefaultAsync(
-                    x => x.Name == requestedServiceName,
-                    cancellationToken);
-
-            var bookingRequest = new BookingRequest
-            {
-                FullName = model.FullName.Trim(),
-                Email = model.Email.Trim(),
-                PhoneNumber = model.PhoneNumber.Trim(),
-                RequestedServiceName = requestedServiceName,
-                ServiceId = matchedService?.Id,
-                PreferredDate = model.PreferredDate!.Value,
-                PreferredTime = model.PreferredTime!.Value,
-                Message = model.Message.Trim(),
-                SourcePage = model.SourcePage.Trim()
-            };
-
-            dbContext.BookingRequests.Add(bookingRequest);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            var response = await bookingPublicCommandService.CreateAsync(
+                new CreateBookingRequestDto
+                {
+                    FullName = model.FullName,
+                    Email = model.Email,
+                    PhoneNumber = model.PhoneNumber,
+                    PreferredServiceName = model.PreferredService,
+                    PreferredDate = model.PreferredDate,
+                    PreferredTime = model.PreferredTime,
+                    Message = model.Message,
+                    SourcePage = model.SourcePage
+                },
+                cancellationToken);
 
             logger.LogInformation(
-                "Saved booking request {BookingRequestId} for {Email} from {SourcePage} on {PreferredDate} at {PreferredTime}.",
-                bookingRequest.Id,
-                bookingRequest.Email,
-                bookingRequest.SourcePage,
-                bookingRequest.PreferredDate,
-                bookingRequest.PreferredTime);
+                "Saved booking request {BookingRequestId} from MVC booking form.",
+                response.BookingId);
 
             return new SubmissionResult(
                 true,
-                "Your appointment request is in. We will confirm availability and follow up with you shortly.",
-                bookingRequest.Id);
+                response.Message,
+                response.BookingId);
         }
         catch (Exception ex)
         {

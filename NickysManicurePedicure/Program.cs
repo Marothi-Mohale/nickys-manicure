@@ -62,7 +62,10 @@ public class Program
         app.UseWhen(
             context => !context.Request.Path.StartsWithSegments("/api"),
             webApp => webApp.UseStatusCodePagesWithReExecute("/status/{0}"));
-        app.UseHttpsRedirection();
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
         app.UseStaticFiles();
         app.UseRouting();
         app.UseAuthorization();

@@ -44,6 +44,7 @@ public sealed class ExceptionHandlingMiddleware(
             }
 
             context.Response.Clear();
+            context.Response.Headers["X-Correlation-ID"] = correlationId;
             var logMessage = exception is DomainException
                 ? "Handled domain exception for {Method} {Path}. TraceIdentifier: {TraceIdentifier}. CorrelationId: {CorrelationId}"
                 : "Unhandled exception for {Method} {Path}. TraceIdentifier: {TraceIdentifier}. CorrelationId: {CorrelationId}";

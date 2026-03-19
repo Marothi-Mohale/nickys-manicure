@@ -1,4 +1,5 @@
 using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Dtos.Common;
 using NickysManicurePedicure.Dtos.Requests;
@@ -116,8 +117,15 @@ public sealed class BookingAdminService(
             return null;
         }
 
-        booking.Status = Enum.Parse<Models.Entities.BookingRequestStatus>(request.Status, ignoreCase: true);
-        booking.AdminNotes = string.IsNullOrWhiteSpace(request.AdminNotes) ? booking.AdminNotes : request.AdminNotes.Trim();
+        if (!Enum.TryParse<Models.Entities.BookingRequestStatus>(request.Status, ignoreCase: true, out var parsedStatus))
+        {
+            throw new BadRequestException("The requested booking status is invalid.", "invalid_booking_status");
+        }
+
+        booking.Status = parsedStatus;
+        booking.AdminNotes = request.AdminNotes is null
+            ? booking.AdminNotes
+            : string.IsNullOrWhiteSpace(request.AdminNotes) ? null : request.AdminNotes.Trim();
 
         await dbContext.SaveChangesAsync(cancellationToken);
 

@@ -19,15 +19,15 @@ public sealed class PublicBookingCommandService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var matchedService = await ResolvePreferredServiceAsync(request, cancellationToken);
+        var serviceSelection = await ResolvePreferredServiceAsync(request, cancellationToken);
 
         var booking = new BookingRequest
         {
             FullName = request.FullName.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
             Email = request.Email.Trim(),
-            ServiceId = matchedService?.Id,
-            RequestedServiceName = matchedService?.Name ?? request.PreferredServiceName!.Trim(),
+            ServiceId = serviceSelection.Service?.Id,
+            RequestedServiceName = serviceSelection.RequestedServiceName,
             PreferredDate = request.PreferredDate!.Value,
             PreferredTime = request.PreferredTime!.Value,
             Message = request.Message.Trim(),
@@ -57,7 +57,9 @@ public sealed class PublicBookingCommandService(
         };
     }
 
-    private async Task<Service?> ResolvePreferredServiceAsync(CreateBookingRequestDto request, CancellationToken cancellationToken)
+    private async Task<ResolvedServiceSelection> ResolvePreferredServiceAsync(
+        CreateBookingRequestDto request,
+        CancellationToken cancellationToken)
     {
         if (request.PreferredServiceId is not null)
         {
@@ -66,26 +68,43 @@ public sealed class PublicBookingCommandService(
                 .Where(x => x.Status == ContentStatus.Published)
                 .FirstOrDefaultAsync(x => x.Id == request.PreferredServiceId.Value, cancellationToken);
 
-            return matchedService ?? throw new BadRequestException(
-                "The selected service could not be found.",
-                "invalid_service_reference");
+            if (matchedService is null)
+            {
+                throw new BadRequestException(
+                    "The selected service could not be found.",
+                    "invalid_service_reference");
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.PreferredServiceName)
+                && !string.Equals(matchedService.Name, request.PreferredServiceName.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                throw new BadRequestException(
+                    "The preferred service name does not match the selected service id.",
+                    "invalid_service_reference");
+            }
+
+            return new ResolvedServiceSelection(matchedService, matchedService.Name);
         }
 
         if (string.IsNullOrWhiteSpace(request.PreferredServiceName))
         {
-            return null;
+            throw new BadRequestException(
+                "Either preferred service id or preferred service name is required.",
+                "invalid_service_reference");
         }
 
         var trimmedName = request.PreferredServiceName.Trim();
-        var namedService = await dbContext.Services
+        var matchedByName = await dbContext.Services
             .AsNoTracking()
             .Where(x => x.Status == ContentStatus.Published)
-            .FirstOrDefaultAsync(x => x.Name == trimmedName, cancellationToken);
+            .FirstOrDefaultAsync(x => x.Name.ToLower() == trimmedName.ToLower(), cancellationToken);
 
-        return namedService ?? throw new BadRequestException(
-            "The selected service could not be found.",
-            "invalid_service_reference");
+        return matchedByName is null
+            ? new ResolvedServiceSelection(null, trimmedName)
+            : new ResolvedServiceSelection(matchedByName, matchedByName.Name);
     }
+
+    private sealed record ResolvedServiceSelection(Service? Service, string RequestedServiceName);
 
     private static BookingReadResponse MapBookingReadResponse(BookingRequest booking) => new()
     {

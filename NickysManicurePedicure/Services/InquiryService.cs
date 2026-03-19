@@ -1,11 +1,13 @@
+using NickysManicurePedicure.Application.Abstractions;
 using NickysManicurePedicure.Data;
+using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.ViewModels;
 
 namespace NickysManicurePedicure.Services;
 
 public class InquiryService(
-    ApplicationDbContext dbContext,
+    IContactInquiryPublicCommandService contactInquiryPublicCommandService,
     ILogger<InquiryService> logger) : IInquiryService
 {
     public async Task<SubmissionResult> CreateAsync(
@@ -16,32 +18,28 @@ public class InquiryService(
 
         try
         {
-            var contactInquiry = new ContactInquiry
-            {
-                FullName = model.FullName.Trim(),
-                Email = model.Email.Trim(),
-                PhoneNumber = model.PhoneNumber.Trim(),
-                Subject = model.InquiryType == InquiryType.Booking
-                    ? "Booking-related website inquiry"
-                    : "General website inquiry",
-                Message = model.Message.Trim(),
-                SourcePage = model.SourcePage.Trim()
-            };
-
-            dbContext.ContactInquiries.Add(contactInquiry);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            var response = await contactInquiryPublicCommandService.CreateAsync(
+                new CreateContactInquiryDto
+                {
+                    FullName = model.FullName,
+                    Email = model.Email,
+                    PhoneNumber = model.PhoneNumber,
+                    Subject = model.InquiryType == InquiryType.Booking
+                        ? "Booking-related website inquiry"
+                        : "General website inquiry",
+                    Message = model.Message,
+                    SourcePage = model.SourcePage
+                },
+                cancellationToken);
 
             logger.LogInformation(
-                "Saved contact inquiry {ContactInquiryId} from {Email} via {SourcePage} at {CreatedAtUtc}.",
-                contactInquiry.Id,
-                contactInquiry.Email,
-                contactInquiry.SourcePage,
-                contactInquiry.CreatedAtUtc);
+                "Saved contact inquiry {ContactInquiryId} from MVC contact form.",
+                response.InquiryId);
 
             return new SubmissionResult(
                 true,
-                "Your message has been received. We will get back to you as soon as possible.",
-                contactInquiry.Id);
+                response.Message,
+                response.InquiryId);
         }
         catch (Exception ex)
         {

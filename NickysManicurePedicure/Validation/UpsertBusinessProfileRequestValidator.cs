@@ -51,7 +51,23 @@ public sealed class UpsertBusinessProfileRequestValidator : AbstractValidator<Up
         RuleFor(x => x.BusinessHours)
             .NotNull().WithMessage("Business hours are required.");
 
+        RuleFor(x => x.BusinessHours)
+            .Must(hours => hours.Count <= 7)
+            .When(x => x.BusinessHours is not null)
+            .WithMessage("Business hours cannot contain more than 7 entries.");
+
+        RuleFor(x => x.BusinessHours)
+            .Must(HaveUniqueDaysOfWeek)
+            .When(x => x.BusinessHours is not null)
+            .WithMessage("Business hours cannot contain duplicate days of the week.");
+
         RuleForEach(x => x.BusinessHours)
             .SetValidator(new UpsertBusinessHourRequestValidator());
     }
+
+    private static bool HaveUniqueDaysOfWeek(IReadOnlyCollection<UpsertBusinessHourRequest> businessHours) =>
+        businessHours
+            .Select(hour => hour.DayOfWeek.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Count() == businessHours.Count;
 }
