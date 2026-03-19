@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NickysManicurePedicure.Common.Exceptions;
 using NickysManicurePedicure.Application.Abstractions;
 using NickysManicurePedicure.Application.Services;
@@ -77,7 +78,13 @@ public static class ServiceCollectionExtensions
             options.DisableDataAnnotationsValidation = false;
         });
         services.AddHealthChecks()
-            .AddDbContextCheck<ApplicationDbContext>("database");
+            .AddCheck(
+                "self",
+                () => HealthCheckResult.Healthy("Application is running."),
+                tags: ["live"])
+            .AddDbContextCheck<ApplicationDbContext>(
+                "database",
+                tags: ["ready", "db"]);
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(options =>
         {
@@ -95,6 +102,7 @@ public static class ServiceCollectionExtensions
                 | HttpLoggingFields.RequestPath
                 | HttpLoggingFields.ResponseStatusCode
                 | HttpLoggingFields.Duration;
+            options.CombineLogs = true;
         });
 
         services.Configure<ForwardedHeadersOptions>(options =>

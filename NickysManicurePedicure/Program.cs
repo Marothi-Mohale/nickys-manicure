@@ -49,7 +49,12 @@ public class Program
         }
 
         app.UseForwardedHeaders();
-        app.UseHttpLogging();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseHttpLogging();
+        }
+
+        app.UseMiddleware<RequestLoggingMiddleware>();
         app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseWhen(
             context => context.Request.Path.StartsWithSegments("/api"),
@@ -65,10 +70,22 @@ public class Program
         app.MapControllers();
         app.MapHealthChecks("/health", new HealthCheckOptions
         {
+            Predicate = registration => registration.Tags.Contains("ready"),
             ResponseWriter = HealthCheckResponseWriter.WriteAsync
         });
         app.MapHealthChecks("/api/health", new HealthCheckOptions
         {
+            Predicate = registration => registration.Tags.Contains("ready"),
+            ResponseWriter = HealthCheckResponseWriter.WriteAsync
+        });
+        app.MapHealthChecks("/health/ready", new HealthCheckOptions
+        {
+            Predicate = registration => registration.Tags.Contains("ready"),
+            ResponseWriter = HealthCheckResponseWriter.WriteAsync
+        });
+        app.MapHealthChecks("/health/live", new HealthCheckOptions
+        {
+            Predicate = registration => registration.Tags.Contains("live"),
             ResponseWriter = HealthCheckResponseWriter.WriteAsync
         });
         app.MapControllerRoute(
