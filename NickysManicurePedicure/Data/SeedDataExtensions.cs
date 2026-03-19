@@ -73,11 +73,41 @@ public static class SeedDataExtensions
                 return;
             }
 
-            await SeedMissingAsync(dbContext.ServiceCategories, ServiceCategoriesSeed, item => item.Id, "service categories", logger);
-            await SeedMissingAsync(dbContext.Services, ServicesSeed, item => item.Id, "services", logger);
-            await SeedMissingAsync(dbContext.Testimonials, TestimonialsSeed, item => item.Id, "testimonials", logger);
-            await SeedMissingAsync(dbContext.FaqItems, FaqSeed, item => item.Id, "faq items", logger);
-            await SeedMissingAsync(dbContext.GalleryItems, GallerySeed, item => item.Id, "gallery items", logger);
+            await UpsertSeedAsync(
+                dbContext.ServiceCategories,
+                ServiceCategoriesSeed,
+                item => item.Id,
+                ApplyServiceCategorySeed,
+                "service categories",
+                logger);
+            await UpsertSeedAsync(
+                dbContext.Services,
+                ServicesSeed,
+                item => item.Id,
+                ApplyServiceSeed,
+                "services",
+                logger);
+            await UpsertSeedAsync(
+                dbContext.Testimonials,
+                TestimonialsSeed,
+                item => item.Id,
+                ApplyTestimonialSeed,
+                "testimonials",
+                logger);
+            await UpsertSeedAsync(
+                dbContext.FaqItems,
+                FaqSeed,
+                item => item.Id,
+                ApplyFaqSeed,
+                "faq items",
+                logger);
+            await UpsertSeedAsync(
+                dbContext.GalleryItems,
+                GallerySeed,
+                item => item.Id,
+                ApplyGallerySeed,
+                "gallery items",
+                logger);
             await SeedBusinessProfileAsync(dbContext, businessProfileOptions, logger);
 
             if (dbContext.ChangeTracker.HasChanges())
@@ -116,33 +146,46 @@ public static class SeedDataExtensions
         await dbContext.Database.EnsureCreatedAsync();
     }
 
-    private static async Task SeedMissingAsync<TEntity, TKey>(
+    private static async Task UpsertSeedAsync<TEntity, TKey>(
         DbSet<TEntity> dbSet,
         IReadOnlyCollection<TEntity> seedItems,
         Func<TEntity, TKey> keySelector,
+        Action<TEntity, TEntity> applySeedValues,
         string entityName,
         ILogger logger)
         where TEntity : class
         where TKey : notnull
     {
-        var existingEntities = await dbSet
-            .AsNoTracking()
-            .ToListAsync();
-        var existingKeySet = existingEntities
-            .Select(keySelector)
-            .ToHashSet();
-        var missingItems = seedItems
-            .Where(item => !existingKeySet.Contains(keySelector(item)))
-            .ToList();
+        var existingEntities = await dbSet.ToListAsync();
+        var existingByKey = existingEntities.ToDictionary(keySelector);
+        var addedCount = 0;
+        var updatedCount = 0;
 
-        if (missingItems.Count == 0)
+        foreach (var seedItem in seedItems)
         {
-            logger.LogInformation("No missing seed data detected for {EntityName}.", entityName);
+            var seedKey = keySelector(seedItem);
+            if (!existingByKey.TryGetValue(seedKey, out var existingEntity))
+            {
+                await dbSet.AddAsync(seedItem);
+                addedCount++;
+                continue;
+            }
+
+            applySeedValues(existingEntity, seedItem);
+            updatedCount++;
+        }
+
+        if (addedCount == 0 && updatedCount == 0)
+        {
+            logger.LogInformation("No seed changes were required for {EntityName}.", entityName);
             return;
         }
 
-        await dbSet.AddRangeAsync(missingItems);
-        logger.LogInformation("Queued {Count} missing {EntityName} seed records.", missingItems.Count, entityName);
+        logger.LogInformation(
+            "Seed sync prepared for {EntityName}. Added {AddedCount}, updated {UpdatedCount}.",
+            entityName,
+            addedCount,
+            updatedCount);
     }
 
     private static async Task SeedBusinessProfileAsync(
@@ -204,14 +247,78 @@ public static class SeedDataExtensions
         }
 
         var seededHours = BuildBusinessHourSeed();
-        var existingDays = profile.BusinessHours
-            .Select(x => x.DayOfWeek)
-            .ToHashSet();
+        var existingByDay = profile.BusinessHours.ToDictionary(x => x.DayOfWeek);
 
-        foreach (var businessHour in seededHours.Where(hour => !existingDays.Contains(hour.DayOfWeek)))
+        foreach (var seededHour in seededHours)
         {
-            profile.BusinessHours.Add(businessHour);
+            if (!existingByDay.TryGetValue(seededHour.DayOfWeek, out var existingHour))
+            {
+                profile.BusinessHours.Add(seededHour);
+                continue;
+            }
+
+            existingHour.IsClosed = seededHour.IsClosed;
+            existingHour.OpenTime = seededHour.OpenTime;
+            existingHour.CloseTime = seededHour.CloseTime;
+            existingHour.Notes = seededHour.Notes;
+            existingHour.DisplayOrder = seededHour.DisplayOrder;
         }
+    }
+
+    private static void ApplyServiceCategorySeed(ServiceCategory target, ServiceCategory seed)
+    {
+        target.Name = seed.Name;
+        target.Slug = seed.Slug;
+        target.Description = seed.Description;
+        target.Status = seed.Status;
+        target.DisplayOrder = seed.DisplayOrder;
+    }
+
+    private static void ApplyServiceSeed(Service target, Service seed)
+    {
+        target.ServiceCategoryId = seed.ServiceCategoryId;
+        target.Name = seed.Name;
+        target.Slug = seed.Slug;
+        target.Description = seed.Description;
+        target.DurationLabel = seed.DurationLabel;
+        target.PriceFromLabel = seed.PriceFromLabel;
+        target.PriceFromAmount = seed.PriceFromAmount;
+        target.IsFeatured = seed.IsFeatured;
+        target.Status = seed.Status;
+        target.DisplayOrder = seed.DisplayOrder;
+    }
+
+    private static void ApplyTestimonialSeed(Testimonial target, Testimonial seed)
+    {
+        target.ClientName = seed.ClientName;
+        target.Quote = seed.Quote;
+        target.Rating = seed.Rating;
+        target.Status = seed.Status;
+        target.IsFeatured = seed.IsFeatured;
+        target.IsApproved = seed.IsApproved;
+        target.DisplayOrder = seed.DisplayOrder;
+    }
+
+    private static void ApplyFaqSeed(FaqItem target, FaqItem seed)
+    {
+        target.Question = seed.Question;
+        target.Answer = seed.Answer;
+        target.IsActive = seed.IsActive;
+        target.Status = seed.Status;
+        target.DisplayOrder = seed.DisplayOrder;
+    }
+
+    private static void ApplyGallerySeed(GalleryItem target, GalleryItem seed)
+    {
+        target.Title = seed.Title;
+        target.Description = seed.Description;
+        target.Category = seed.Category;
+        target.ImageUrl = seed.ImageUrl;
+        target.ThumbnailUrl = seed.ThumbnailUrl;
+        target.AltText = seed.AltText;
+        target.IsFeatured = seed.IsFeatured;
+        target.Status = seed.Status;
+        target.DisplayOrder = seed.DisplayOrder;
     }
 
     private static IReadOnlyList<BusinessHour> BuildBusinessHourSeed() =>
