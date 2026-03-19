@@ -7,6 +7,7 @@ using NickysManicurePedicure.Dtos.Responses;
 namespace NickysManicurePedicure.Api.Controllers;
 
 [ApiController]
+[Route("api/gallery")]
 [Route("api/gallery-items")]
 [Produces("application/json")]
 public sealed class GalleryItemsApiController(IPublicSalonApiService publicSalonApiService) : ControllerBase

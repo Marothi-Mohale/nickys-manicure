@@ -170,8 +170,8 @@ public sealed class PublicSalonApiService(
 
         if (!string.IsNullOrWhiteSpace(query.Category))
         {
-            var category = query.Category.Trim();
-            galleryQuery = galleryQuery.Where(x => x.Category == category);
+            var category = query.Category.Trim().ToLowerInvariant();
+            galleryQuery = galleryQuery.Where(x => x.Category != null && x.Category.ToLower() == category);
         }
 
         if (query.FeaturedOnly == true)
@@ -197,11 +197,9 @@ public sealed class PublicSalonApiService(
                 Description = x.Description,
                 Category = x.Category,
                 ImageUrl = x.ImageUrl,
-                ThumbnailUrl = x.ThumbnailUrl,
                 AltText = x.AltText,
                 IsFeatured = x.IsFeatured,
-                DisplayOrder = x.DisplayOrder,
-                CreatedAtUtc = x.CreatedAtUtc
+                DisplayOrder = x.DisplayOrder
             })
             .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
     }

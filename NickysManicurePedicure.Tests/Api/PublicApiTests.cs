@@ -135,6 +135,28 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
+    public async Task GetGallery_ReturnsMetadataAndSupportsCategoryFiltering()
+    {
+        var response = await _client.GetAsync("/api/gallery?page=1&pageSize=10&category=manicure&featuredOnly=true&sortBy=displayOrder&sortDirection=asc");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<GalleryListItemResponse>>();
+
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload.Items);
+        Assert.Equal(payload.Items.OrderBy(item => item.DisplayOrder).Select(item => item.Id), payload.Items.Select(item => item.Id));
+        Assert.All(payload.Items, item =>
+        {
+            Assert.Equal("Manicure", item.Category);
+            Assert.True(item.IsFeatured);
+            Assert.False(string.IsNullOrWhiteSpace(item.Title));
+            Assert.False(string.IsNullOrWhiteSpace(item.ImageUrl));
+            Assert.False(string.IsNullOrWhiteSpace(item.AltText));
+        });
+    }
+
+    [Fact]
     public async Task PostContactInquiry_ReturnsAccepted()
     {
         var request = new CreateContactInquiryDto

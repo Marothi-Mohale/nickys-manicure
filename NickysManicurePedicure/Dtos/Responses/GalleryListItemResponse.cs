@@ -7,9 +7,7 @@ public sealed class GalleryListItemResponse
     public string? Description { get; init; }
     public string? Category { get; init; }
     public required string ImageUrl { get; init; }
-    public string? ThumbnailUrl { get; init; }
     public required string AltText { get; init; }
     public required bool IsFeatured { get; init; }
     public required int DisplayOrder { get; init; }
-    public required DateTime CreatedAtUtc { get; init; }
 }
