@@ -1,9 +1,14 @@
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using NickysManicurePedicure.Application.Abstractions;
+using NickysManicurePedicure.Application.Services;
 using NickysManicurePedicure.Data;
+using NickysManicurePedicure.Infrastructure;
 using NickysManicurePedicure.Models.Options;
 using NickysManicurePedicure.Services;
 
@@ -64,6 +69,20 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
         services.AddRouting(options => options.LowercaseUrls = true);
+        services.AddProblemDetails();
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>("database");
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("v1", new OpenApiInfo
+            {
+                Title = "Nicky's Manicure & Pedicure API",
+                Version = "v1",
+                Description = "Production-minded backend endpoints for the public luxury salon website and future admin use."
+            });
+        });
 
         services.AddHttpLogging(options =>
         {
@@ -76,15 +95,33 @@ public static class ServiceCollectionExtensions
         services.Configure<ForwardedHeadersOptions>(options =>
         {
             options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.KnownIPNetworks.Clear();
+            options.KnownNetworks.Clear();
             options.KnownProxies.Clear();
         });
 
-        services
-            .AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+        services.AddControllersWithViews();
+        services.Configure<ApiBehaviorOptions>(options =>
+        {
+            options.InvalidModelStateResponseFactory = context =>
+            {
+                var problemDetails = new ValidationProblemDetails(context.ModelState)
+                {
+                    Status = StatusCodes.Status400BadRequest,
+                    Title = "One or more validation errors occurred.",
+                    Type = "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+                    Instance = context.HttpContext.Request.Path
+                };
+
+                problemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+
+                return new BadRequestObjectResult(problemDetails);
+            };
+        });
 
         services.AddScoped<IInquiryService, InquiryService>();
         services.AddScoped<IBookingRequestService, BookingRequestService>();
+        services.AddScoped<IInquiryApiCommandService, InquiryApiCommandService>();
+        services.AddScoped<IPublicSalonApiService, PublicSalonApiService>();
 
         return services;
     }

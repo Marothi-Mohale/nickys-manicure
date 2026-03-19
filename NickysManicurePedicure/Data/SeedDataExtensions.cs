@@ -32,6 +32,13 @@ public static class SeedDataExtensions
         new() { Id = 4, Question = "Where is the salon located?", Answer = "We are based at 72 Main Road, Mowbray, Cape Town, making visits easy for clients across the city.", DisplayOrder = 4 }
     ];
 
+    public static IReadOnlyList<GalleryItem> GallerySeed =>
+    [
+        new() { Id = 1, Title = "Signature Nude Gloss Set", Description = "Luxury nude manicure styling with refined finish work.", Category = "Manicure", ImageUrl = "/images/gallery/signature-nude-gloss.jpg", ThumbnailUrl = "/images/gallery/thumbs/signature-nude-gloss.jpg", AltText = "Elegant nude manicure with glossy finish", IsFeatured = true, IsPublished = true, DisplayOrder = 1, CreatedUtc = DateTime.UtcNow.AddDays(-30) },
+        new() { Id = 2, Title = "Soft Bridal Detail", Description = "A bridal-ready set with delicate detail accents and clean structure.", Category = "Bridal", ImageUrl = "/images/gallery/soft-bridal-detail.jpg", ThumbnailUrl = "/images/gallery/thumbs/soft-bridal-detail.jpg", AltText = "Bridal nail styling with soft luxury detail", IsFeatured = true, IsPublished = true, DisplayOrder = 2, CreatedUtc = DateTime.UtcNow.AddDays(-25) },
+        new() { Id = 3, Title = "Polished Pedicure Finish", Description = "High-end pedicure presentation for sandal-ready confidence.", Category = "Pedicure", ImageUrl = "/images/gallery/polished-pedicure-finish.jpg", ThumbnailUrl = "/images/gallery/thumbs/polished-pedicure-finish.jpg", AltText = "Luxury pedicure finish in neutral tones", IsFeatured = false, IsPublished = true, DisplayOrder = 3, CreatedUtc = DateTime.UtcNow.AddDays(-20) }
+    ];
+
     public static async Task EnsureDatabaseReadyAsync(this IServiceProvider services)
     {
         using var scope = services.CreateScope();
@@ -39,6 +46,9 @@ public static class SeedDataExtensions
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var databaseOptions = scope.ServiceProvider
             .GetRequiredService<IOptions<DatabaseOptions>>()
+            .Value;
+        var businessProfileOptions = scope.ServiceProvider
+            .GetRequiredService<IOptions<BusinessProfileOptions>>()
             .Value;
 
         try
@@ -54,6 +64,8 @@ public static class SeedDataExtensions
             await SeedMissingAsync(dbContext.Services, ServicesSeed, item => item.Id, "services", logger);
             await SeedMissingAsync(dbContext.Testimonials, TestimonialsSeed, item => item.Id, "testimonials", logger);
             await SeedMissingAsync(dbContext.FaqItems, FaqSeed, item => item.Id, "faq items", logger);
+            await SeedMissingAsync(dbContext.GalleryItems, GallerySeed, item => item.Id, "gallery items", logger);
+            await SeedBusinessProfileAsync(dbContext, businessProfileOptions, logger);
 
             if (dbContext.ChangeTracker.HasChanges())
             {
@@ -119,4 +131,76 @@ public static class SeedDataExtensions
         await dbSet.AddRangeAsync(missingItems);
         logger.LogInformation("Queued {Count} missing {EntityName} seed records.", missingItems.Count, entityName);
     }
+
+    private static async Task SeedBusinessProfileAsync(
+        ApplicationDbContext dbContext,
+        BusinessProfileOptions options,
+        ILogger logger)
+    {
+        var profile = await dbContext.BusinessProfiles
+            .Include(x => x.BusinessHours)
+            .FirstOrDefaultAsync(x => x.Id == 1);
+
+        if (profile is null)
+        {
+            profile = new BusinessProfile
+            {
+                Id = 1,
+                Name = options.Name,
+                Tagline = options.Tagline,
+                Phone = options.Phone,
+                PhoneHref = options.PhoneHref,
+                Email = options.Email,
+                AddressLine1 = options.AddressLine1,
+                Suburb = options.Suburb,
+                City = options.City,
+                Region = options.Region,
+                PostalCode = options.PostalCode,
+                WhatsAppHref = options.WhatsAppHref,
+                InstagramHandle = options.InstagramHandle,
+                BookingPolicy = "Booking requests are confirmed manually to preserve scheduling quality and a premium client experience.",
+                AboutSummary = "Nicky's Manicure & Pedicure delivers luxury manicure and pedicure services with thoughtful care, elegant finishes, and a calm, premium experience in Cape Town."
+            };
+
+            dbContext.BusinessProfiles.Add(profile);
+            logger.LogInformation("Queued initial business profile seed record.");
+        }
+        else
+        {
+            profile.Name = options.Name;
+            profile.Tagline = options.Tagline;
+            profile.Phone = options.Phone;
+            profile.PhoneHref = options.PhoneHref;
+            profile.Email = options.Email;
+            profile.AddressLine1 = options.AddressLine1;
+            profile.Suburb = options.Suburb;
+            profile.City = options.City;
+            profile.Region = options.Region;
+            profile.PostalCode = options.PostalCode;
+            profile.WhatsAppHref = options.WhatsAppHref;
+            profile.InstagramHandle = options.InstagramHandle;
+            profile.UpdatedUtc = DateTime.UtcNow;
+        }
+
+        var seededHours = BuildBusinessHourSeed();
+        var existingDays = profile.BusinessHours
+            .Select(x => x.DayOfWeek)
+            .ToHashSet();
+
+        foreach (var businessHour in seededHours.Where(hour => !existingDays.Contains(hour.DayOfWeek)))
+        {
+            profile.BusinessHours.Add(businessHour);
+        }
+    }
+
+    private static IReadOnlyList<BusinessHour> BuildBusinessHourSeed() =>
+    [
+        new() { Id = 1, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Monday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(18, 0), DisplayOrder = 1 },
+        new() { Id = 2, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Tuesday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(18, 0), DisplayOrder = 2 },
+        new() { Id = 3, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Wednesday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(18, 0), DisplayOrder = 3 },
+        new() { Id = 4, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Thursday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(18, 0), DisplayOrder = 4 },
+        new() { Id = 5, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Friday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(18, 0), DisplayOrder = 5 },
+        new() { Id = 6, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Saturday, IsClosed = false, OpenTime = new TimeOnly(9, 0), CloseTime = new TimeOnly(16, 0), DisplayOrder = 6 },
+        new() { Id = 7, BusinessProfileId = 1, DayOfWeek = DayOfWeek.Sunday, IsClosed = true, Notes = "By appointment", DisplayOrder = 7 }
+    ];
 }

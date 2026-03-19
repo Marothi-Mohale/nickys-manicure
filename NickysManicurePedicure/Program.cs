@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging.Console;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Extensions;
+using NickysManicurePedicure.Infrastructure;
 using NickysManicurePedicure.Models.Options;
 
 namespace NickysManicurePedicure;
@@ -37,26 +38,36 @@ public class Program
 
         if (app.Environment.IsDevelopment())
         {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        if (app.Environment.IsDevelopment())
+        {
             app.UseDeveloperExceptionPage();
         }
         else
         {
-            app.UseExceptionHandler("/error");
             app.UseHsts();
         }
 
+        app.UseExceptionHandler();
         app.UseForwardedHeaders();
         app.UseHttpLogging();
         app.UseStatusCodePagesWithReExecute("/status/{0}");
         app.UseHttpsRedirection();
+        app.UseStaticFiles();
         app.UseRouting();
         app.UseAuthorization();
 
-        app.MapStaticAssets();
+        app.MapControllers();
+        app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = HealthCheckResponseWriter.WriteAsync
+        });
         app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
-            .WithStaticAssets();
+                pattern: "{controller=Home}/{action=Index}/{id?}");
 
         await app.Services.EnsureDatabaseReadyAsync();
         await app.RunAsync();
