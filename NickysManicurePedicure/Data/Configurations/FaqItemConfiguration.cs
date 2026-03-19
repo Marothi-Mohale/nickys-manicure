@@ -10,7 +10,8 @@ public sealed class FaqItemConfiguration : IEntityTypeConfiguration<FaqItem>
     {
         builder.Property(x => x.Question).HasMaxLength(200).IsRequired();
         builder.Property(x => x.Answer).HasMaxLength(1000).IsRequired();
+        builder.Property(x => x.IsActive).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
-        builder.HasIndex(x => new { x.Status, x.DisplayOrder });
+        builder.HasIndex(x => new { x.Status, x.IsActive, x.DisplayOrder });
     }
 }

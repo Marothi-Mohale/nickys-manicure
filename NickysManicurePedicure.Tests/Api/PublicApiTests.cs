@@ -157,6 +157,25 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
+    public async Task GetFaqs_ReturnsActiveItemsInDisplayOrder()
+    {
+        var response = await _client.GetAsync("/api/faqs?page=1&pageSize=10&sortBy=displayOrder&sortDirection=asc");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<FaqListItemResponse>>();
+
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload.Items);
+        Assert.Equal(payload.Items.OrderBy(item => item.DisplayOrder).Select(item => item.Id), payload.Items.Select(item => item.Id));
+        Assert.All(payload.Items, item =>
+        {
+            Assert.False(string.IsNullOrWhiteSpace(item.Question));
+            Assert.False(string.IsNullOrWhiteSpace(item.Answer));
+        });
+    }
+
+    [Fact]
     public async Task PostContactInquiry_ReturnsAccepted()
     {
         var request = new CreateContactInquiryDto

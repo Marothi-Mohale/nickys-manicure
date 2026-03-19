@@ -212,7 +212,7 @@ public sealed class PublicSalonApiService(
 
         var faqQuery = dbContext.FaqItems
             .AsNoTracking()
-            .Where(x => x.Status == ContentStatus.Published);
+            .Where(x => x.Status == ContentStatus.Published && x.IsActive);
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {

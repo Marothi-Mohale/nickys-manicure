@@ -35,10 +35,11 @@ public static class SeedDataExtensions
 
     public static IReadOnlyList<FaqItem> FaqSeed =>
     [
-        new() { Id = 1, Question = "Do I need to book in advance?", Answer = "Advance booking is recommended, especially for Fridays, Saturdays, and special occasion appointments.", Status = ContentStatus.Published, DisplayOrder = 1 },
-        new() { Id = 2, Question = "Can I request a preferred date or time?", Answer = "Yes. Share your ideal appointment time in the booking form and we will confirm availability as quickly as possible.", Status = ContentStatus.Published, DisplayOrder = 2 },
-        new() { Id = 3, Question = "Do you offer custom nail art?", Answer = "Yes. Subtle luxury finishes and bespoke nail art details can be discussed when you submit your request.", Status = ContentStatus.Published, DisplayOrder = 3 },
-        new() { Id = 4, Question = "Where is the salon located?", Answer = "We are based at 72 Main Road, Mowbray, Cape Town, making visits easy for clients across the city.", Status = ContentStatus.Published, DisplayOrder = 4 }
+        new() { Id = 1, Question = "Do I need to book in advance?", Answer = "Advance booking is recommended, especially for Fridays, Saturdays, and pre-event appointments, so we can reserve the right amount of time for your service.", IsActive = true, Status = ContentStatus.Published, DisplayOrder = 1 },
+        new() { Id = 2, Question = "Can I request a preferred date and time?", Answer = "Yes. Submit your preferred date and time in the booking form and we will confirm the closest available appointment as quickly as possible.", IsActive = true, Status = ContentStatus.Published, DisplayOrder = 2 },
+        new() { Id = 3, Question = "Do you offer gel, classic polish, and custom finishes?", Answer = "Yes. Services can include classic polish, gel options, and refined design details depending on the look you want to achieve. If you have inspiration, you are welcome to mention it when booking.", IsActive = true, Status = ContentStatus.Published, DisplayOrder = 3 },
+        new() { Id = 4, Question = "How should I prepare for my appointment?", Answer = "Arriving a few minutes early is ideal. If you currently have product on your nails or want a specific finish for an event, note that in your booking request so enough time can be scheduled.", IsActive = true, Status = ContentStatus.Published, DisplayOrder = 4 },
+        new() { Id = 5, Question = "Where is the salon located?", Answer = "Nicky's Manicure & Pedicure is based at 72 Main Road, Mowbray, Cape Town, with a calm, private setting designed for a relaxed premium appointment.", IsActive = true, Status = ContentStatus.Published, DisplayOrder = 5 }
     ];
 
     public static IReadOnlyList<GalleryItem> GallerySeed =>
