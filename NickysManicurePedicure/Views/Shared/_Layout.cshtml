@@ -30,7 +30,9 @@
         <nav class="navbar navbar-expand-lg">
             <div class="container">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <span class="brand-mark">N</span>
+                    <span class="brand-mark brand-logo-shell">
+                        <img class="brand-logo" src="~/images/brand/nicky-logo.jpg" alt="Nicky's Manicure & Pedicure logo" asp-append-version="true" />
+                    </span>
                     <span>
                         <span class="brand-title">@business.Name</span>
                         <span class="brand-subtitle">Luxury nail care in Cape Town</span>
@@ -69,7 +71,10 @@
             <div class="row g-4">
                 <div class="col-lg-4">
                     <span class="footer-kicker">Luxury Nail Studio</span>
-                    <h2 class="footer-title">@business.Name</h2>
+                    <div class="footer-brand-lockup">
+                        <img class="footer-logo" src="~/images/brand/nicky-logo.jpg" alt="Nicky's Manicure & Pedicure logo" asp-append-version="true" />
+                        <h2 class="footer-title">@business.Name</h2>
+                    </div>
                     <p class="footer-copy">@business.Tagline</p>
                     <div class="footer-social">
                         <a href="@business.PhoneHref" aria-label="Call the salon"><i class="bi bi-telephone-fill"></i></a>

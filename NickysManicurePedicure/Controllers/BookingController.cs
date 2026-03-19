@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NickysManicurePedicure.Content;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.Models.Options;
@@ -78,6 +79,7 @@ public class BookingController(
     {
         ViewData["Description"] = "Request your manicure or pedicure appointment with Nicky's Manicure & Pedicure in Cape Town.";
         var services = await dbContext.Services
+            .AsNoTracking()
             .Where(x => x.Status == ContentStatus.Published)
             .OrderBy(x => x.DisplayOrder)
             .ToListAsync(cancellationToken);
@@ -88,18 +90,23 @@ public class BookingController(
             {
                 Business = businessOptions.Value,
                 Services = services,
+                EditorialImages = SalonImageCatalog.ServiceEditorialImages,
                 BookingForm = model
             }),
             RouteSourcePages.Home => View("~/Views/Home/Index.cshtml", new HomePageViewModel
             {
                 Business = businessOptions.Value,
                 FeaturedServices = services.Where(x => x.IsFeatured).ToList(),
+                HeroImage = SalonImageCatalog.HomeHero,
+                PreviewImages = SalonImageCatalog.HomePreviewImages,
                 Testimonials = await dbContext.Testimonials
-                    .Where(x => x.Status == ContentStatus.Published)
+                    .AsNoTracking()
+                    .Where(x => x.Status == ContentStatus.Published && x.IsApproved)
                     .OrderBy(x => x.DisplayOrder)
                     .ToListAsync(cancellationToken),
                 FaqItems = await dbContext.FaqItems
-                    .Where(x => x.Status == ContentStatus.Published)
+                    .AsNoTracking()
+                    .Where(x => x.Status == ContentStatus.Published && x.IsActive)
                     .OrderBy(x => x.DisplayOrder)
                     .ToListAsync(cancellationToken),
                 BookingForm = model

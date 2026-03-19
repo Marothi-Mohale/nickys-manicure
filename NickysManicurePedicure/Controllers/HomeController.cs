@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NickysManicurePedicure.Content;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models;
 using NickysManicurePedicure.Models.Entities;
@@ -40,6 +41,8 @@ public class HomeController(
                 .Where(x => x.Status == ContentStatus.Published && x.IsActive)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
+            HeroImage = SalonImageCatalog.HomeHero,
+            PreviewImages = SalonImageCatalog.HomePreviewImages,
             BookingForm = new BookingRequestViewModel
             {
                 SourcePage = RouteSourcePages.Home

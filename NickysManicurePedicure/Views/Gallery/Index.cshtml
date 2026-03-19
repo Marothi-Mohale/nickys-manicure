@@ -3,8 +3,8 @@
 <section class="page-hero">
     <div class="container">
         <span class="eyebrow">Gallery</span>
-        <h1>A gallery-ready space for elegant nail work and future signature sets.</h1>
-        <p>This page is designed to grow with the business and showcase future client work in a polished, premium way.</p>
+        <h1>A polished gallery of signature manicure and pedicure styling.</h1>
+        <p>A curated visual edit of the salon aesthetic: soft luxury finishes, elegant detail, and presentation that feels premium without feeling crowded.</p>
     </div>
 </section>
 
@@ -14,8 +14,11 @@
             @foreach (var item in Model.GalleryItems)
             {
                 <article class="gallery-card">
-                    <div class="gallery-art" aria-hidden="true"></div>
+                    <div class="gallery-art">
+                        <img src="@item.ImageUrl" alt="@item.AltText" loading="lazy" decoding="async" />
+                    </div>
                     <div class="gallery-body">
+                        <span class="gallery-category">@(item.IsFeatured ? "Featured " : string.Empty)@item.Category</span>
                         <h2 class="h5">@item.Title</h2>
                         <p>@item.Description</p>
                     </div>

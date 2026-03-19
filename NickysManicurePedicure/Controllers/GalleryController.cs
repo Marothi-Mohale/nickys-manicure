@@ -27,7 +27,11 @@ public class GalleryController(
                 .Select(x => new GalleryItemViewModel
                 {
                     Title = x.Title,
-                    Description = x.Description ?? string.Empty
+                    Description = x.Description ?? string.Empty,
+                    Category = x.Category ?? "Salon",
+                    ImageUrl = x.ImageUrl,
+                    AltText = x.AltText,
+                    IsFeatured = x.IsFeatured
                 })
                 .ToListAsync(cancellationToken)
         };

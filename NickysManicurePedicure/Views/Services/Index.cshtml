@@ -2,12 +2,25 @@
 
 <section class="page-hero">
     <div class="container">
-        <span class="eyebrow">Services</span>
-        <h1>Curated manicure and pedicure treatments for polished, modern women.</h1>
-        <p>Every service is delivered with attention to detail, lasting beauty, and a premium client experience.</p>
-        <div class="hero-actions mt-4">
-            <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Book Your Appointment</a>
-            <a class="btn btn-outline-brand btn-lg" href="#services-booking-form">Request From This Page</a>
+        <div class="page-hero-shell">
+            <div class="page-hero-copy">
+                <span class="eyebrow">Services</span>
+                <h1>Curated manicure and pedicure treatments for polished, modern women.</h1>
+                <p>Every service is delivered with attention to detail, lasting beauty, and a premium client experience.</p>
+                <div class="hero-actions mt-4">
+                    <a class="btn btn-brand btn-lg" asp-controller="Booking" asp-action="Index">Book Your Appointment</a>
+                    <a class="btn btn-outline-brand btn-lg" href="#services-booking-form">Request From This Page</a>
+                </div>
+            </div>
+            <div class="page-hero-media-grid">
+                @foreach (var image in Model.EditorialImages)
+                {
+                    <figure class="page-hero-media-card">
+                        <img src="@image.ImageUrl" alt="@image.AltText" loading="lazy" decoding="async" />
+                        <figcaption>@image.Caption</figcaption>
+                    </figure>
+                }
+            </div>
         </div>
     </div>
 </section>

@@ -128,6 +128,22 @@ a:hover {
     box-shadow: var(--shadow-sm);
 }
 
+.brand-logo-shell {
+    width: 4rem;
+    height: 4rem;
+    padding: 0.2rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.brand-logo,
+.footer-logo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
 .brand-title,
 .footer-title {
     display: block;
@@ -326,6 +342,23 @@ a:hover {
         radial-gradient(circle at top right, rgba(255, 255, 255, 0.74), transparent 30%),
         linear-gradient(160deg, rgba(216, 183, 169, 0.85), rgba(234, 215, 210, 0.58) 48%, rgba(255, 250, 246, 0.95) 100%);
     box-shadow: var(--shadow-lg);
+}
+
+.hero-visual-media,
+.page-hero-media-card img,
+.editorial-image-card img,
+.about-signature-figure img,
+.gallery-teaser-card img,
+.gallery-art img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.hero-visual-media {
+    position: absolute;
+    inset: 0;
 }
 
 .hero-visual::before,
@@ -536,6 +569,11 @@ a:hover {
 }
 
 .gallery-teaser-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 11rem;
+    display: flex;
+    align-items: flex-end;
     border-radius: 28px;
     border: 1px solid rgba(125, 93, 82, 0.12);
     background:
@@ -544,17 +582,113 @@ a:hover {
     box-shadow: var(--shadow-sm);
 }
 
-.gallery-teaser-card.tall {
-    grid-row: span 2;
-    background:
-        radial-gradient(circle at 20% 22%, rgba(255, 255, 255, 0.6), transparent 20%),
-        linear-gradient(160deg, rgba(216, 183, 169, 0.74), rgba(255, 250, 246, 0.94));
+.gallery-teaser-card::after,
+.page-hero-media-card::after,
+.editorial-image-card::after,
+.about-signature-figure::after,
+.gallery-art::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(33, 27, 27, 0.02), rgba(33, 27, 27, 0.38));
+    pointer-events: none;
 }
 
-.gallery-teaser-card.accent {
-    background:
-        radial-gradient(circle at 78% 25%, rgba(200, 166, 109, 0.28), transparent 18%),
-        linear-gradient(145deg, rgba(247, 239, 232, 0.94), rgba(234, 215, 210, 0.68));
+.gallery-teaser-card.tall {
+    grid-row: span 2;
+}
+
+.gallery-teaser-card span,
+.page-hero-media-card figcaption,
+.editorial-image-card figcaption,
+.about-signature-figure figcaption {
+    position: absolute;
+    left: 1.1rem;
+    right: 1.1rem;
+    bottom: 1rem;
+    z-index: 1;
+    color: rgba(255, 255, 255, 0.94);
+    font-size: 0.84rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.page-hero-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(18rem, 0.95fr);
+    gap: 2rem;
+    align-items: center;
+}
+
+.page-hero-shell-wide {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.9fr);
+}
+
+.page-hero-copy {
+    max-width: 42rem;
+}
+
+.page-hero-media-grid,
+.editorial-image-stack {
+    display: grid;
+    gap: 1rem;
+}
+
+.page-hero-media-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.page-hero-media-card,
+.editorial-image-card,
+.about-signature-figure {
+    position: relative;
+    overflow: hidden;
+    margin: 0;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(125, 93, 82, 0.12);
+    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.page-hero-media-card {
+    aspect-ratio: 0.92;
+}
+
+.page-hero-media-card:first-child {
+    transform: translateY(1rem);
+}
+
+.editorial-split {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 1.1fr);
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.editorial-copy {
+    margin-bottom: 0;
+}
+
+.editorial-image-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.editorial-image-card {
+    aspect-ratio: 0.88;
+}
+
+.editorial-image-card:first-child {
+    transform: translateY(1rem);
+}
+
+.about-signature-figure {
+    aspect-ratio: 0.9;
+}
+
+.about-story-panel {
+    padding-right: 2.3rem;
 }
 
 .premium-accordion .accordion-item {
@@ -630,6 +764,8 @@ a:hover {
 }
 
 .gallery-art {
+    position: relative;
+    overflow: hidden;
     min-height: 18rem;
     border-radius: 22px;
     background:
@@ -639,6 +775,16 @@ a:hover {
 
 .gallery-body {
     padding-top: 1.5rem;
+}
+
+.gallery-category {
+    display: inline-block;
+    margin-bottom: 0.65rem;
+    color: var(--rose-smoke);
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-weight: 700;
 }
 
 .map-placeholder {
@@ -913,6 +1059,21 @@ a:hover {
     margin-bottom: 1rem;
 }
 
+.footer-brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-bottom: 0.9rem;
+}
+
+.footer-logo {
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.15rem;
+}
+
 .footer-social {
     display: flex;
     gap: 0.75rem;
@@ -990,12 +1151,19 @@ a:hover {
     .trust-ribbon-grid,
     .testimonials-strip,
     .contact-card-grid,
-    .contact-hero-shell {
+    .contact-hero-shell,
+    .page-hero-shell,
+    .editorial-split {
         grid-template-columns: 1fr;
     }
 
     .gallery-teaser-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .page-hero-media-card:first-child,
+    .editorial-image-card:first-child {
+        transform: none;
     }
 
     .cta-panel,
@@ -1048,6 +1216,11 @@ a:hover {
 
     .gallery-teaser-card.tall {
         grid-row: auto;
+    }
+
+    .page-hero-media-grid,
+    .editorial-image-stack {
+        grid-template-columns: 1fr;
     }
 
     .contact-whatsapp-cta,

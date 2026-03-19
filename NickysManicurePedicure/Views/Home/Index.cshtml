@@ -29,6 +29,13 @@
             <div class="col-lg-6">
                 <div class="hero-showcase">
                     <div class="hero-visual">
+                        <img
+                            class="hero-visual-media"
+                            src="@Model.HeroImage.ImageUrl"
+                            alt="@Model.HeroImage.AltText"
+                            loading="eager"
+                            fetchpriority="high"
+                            decoding="async" />
                         <div class="hero-badge">
                             <i class="bi bi-stars"></i>
                             <span>Premium Beauty Appointments</span>
@@ -154,9 +161,30 @@
             </div>
             <div class="col-lg-7">
                 <div class="gallery-teaser-grid">
-                    <div class="gallery-teaser-card tall"></div>
-                    <div class="gallery-teaser-card"></div>
-                    <div class="gallery-teaser-card accent"></div>
+                    <article class="gallery-teaser-card tall">
+                        <img
+                            src="@Model.PreviewImages[0].ImageUrl"
+                            alt="@Model.PreviewImages[0].AltText"
+                            loading="lazy"
+                            decoding="async" />
+                        <span>@Model.PreviewImages[0].Caption</span>
+                    </article>
+                    <article class="gallery-teaser-card">
+                        <img
+                            src="@Model.PreviewImages[1].ImageUrl"
+                            alt="@Model.PreviewImages[1].AltText"
+                            loading="lazy"
+                            decoding="async" />
+                        <span>@Model.PreviewImages[1].Caption</span>
+                    </article>
+                    <article class="gallery-teaser-card accent">
+                        <img
+                            src="@Model.PreviewImages[2].ImageUrl"
+                            alt="@Model.PreviewImages[2].AltText"
+                            loading="lazy"
+                            decoding="async" />
+                        <span>@Model.PreviewImages[2].Caption</span>
+                    </article>
                 </div>
             </div>
         </div>

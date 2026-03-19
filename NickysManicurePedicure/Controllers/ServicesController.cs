@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NickysManicurePedicure.Content;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.Models.Options;
@@ -26,6 +27,7 @@ public class ServicesController(
                 .Where(x => x.Status == ContentStatus.Published)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
+            EditorialImages = SalonImageCatalog.ServiceEditorialImages,
             BookingForm = new BookingRequestViewModel
             {
                 SourcePage = RouteSourcePages.Services

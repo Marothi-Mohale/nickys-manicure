@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NickysManicurePedicure.Content;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.Models.Options;
@@ -20,6 +21,7 @@ public class AboutController(
         var model = new AboutPageViewModel
         {
             Business = businessOptions.Value,
+            SignatureImage = SalonImageCatalog.AboutSignature,
             Testimonials = await dbContext.Testimonials
                 .AsNoTracking()
                 .Where(x => x.Status == ContentStatus.Published && x.IsApproved)
