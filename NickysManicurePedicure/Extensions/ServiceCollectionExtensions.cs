@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -68,6 +70,11 @@ public static class ServiceCollectionExtensions
     {
         services.AddRouting(options => options.LowercaseUrls = true);
         services.AddProblemDetails();
+        services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Scoped);
+        services.AddFluentValidationAutoValidation(options =>
+        {
+            options.DisableDataAnnotationsValidation = false;
+        });
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");
         services.AddEndpointsApiExplorer();

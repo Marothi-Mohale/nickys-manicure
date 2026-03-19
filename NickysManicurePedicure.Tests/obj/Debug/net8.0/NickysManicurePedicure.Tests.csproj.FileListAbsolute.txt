@@ -474,3 +474,6 @@
 /workspaces/nickys-manicure/NickysManicurePedicure.Tests/obj/Debug/net8.0/NickysManicurePedicure.Tests.pdb
 /workspaces/nickys-manicure/NickysManicurePedicure.Tests/obj/Debug/net8.0/NickysManicurePedicure.Tests.genruntimeconfig.cache
 /workspaces/nickys-manicure/NickysManicurePedicure.Tests/obj/Debug/net8.0/ref/NickysManicurePedicure.Tests.dll
+/workspaces/nickys-manicure/NickysManicurePedicure.Tests/bin/Debug/net8.0/FluentValidation.dll
+/workspaces/nickys-manicure/NickysManicurePedicure.Tests/bin/Debug/net8.0/FluentValidation.AspNetCore.dll
+/workspaces/nickys-manicure/NickysManicurePedicure.Tests/bin/Debug/net8.0/FluentValidation.DependencyInjectionExtensions.dll
