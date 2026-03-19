@@ -27,9 +27,10 @@ public static class SeedDataExtensions
 
     public static IReadOnlyList<Testimonial> TestimonialsSeed =>
     [
-        new() { Id = 1, ClientName = "Lerato M.", Highlight = "Elegant every time", Review = "Nicky is warm, professional, and incredibly precise. My nails always look elegant and last beautifully.", Status = ContentStatus.Published, IsFeatured = true, DisplayOrder = 1 },
-        new() { Id = 2, ClientName = "Ayanda P.", Highlight = "Luxury and consistency", Review = "The experience feels premium from the moment you arrive. Clean, calm, and consistently excellent results.", Status = ContentStatus.Published, IsFeatured = true, DisplayOrder = 2 },
-        new() { Id = 3, ClientName = "Zanele R.", Highlight = "Trusted for special occasions", Review = "She prepared my nails for an event and I felt polished, feminine, and completely looked after.", Status = ContentStatus.Published, IsFeatured = false, DisplayOrder = 3 }
+        new() { Id = 1, ClientName = "Lerato M.", Quote = "Nicky is warm, meticulous, and remarkably consistent. My manicure still looked elegant nearly two weeks later, and the whole appointment felt calm, polished, and genuinely luxurious.", Rating = 5, IsFeatured = true, IsApproved = true, Status = ContentStatus.Published, DisplayOrder = 1 },
+        new() { Id = 2, ClientName = "Ayanda P.", Quote = "From the welcome to the final finish, the experience felt premium. The salon is spotless, the attention to detail is exceptional, and my pedicure looked refined enough for an event that same evening.", Rating = 5, IsFeatured = true, IsApproved = true, Status = ContentStatus.Published, DisplayOrder = 2 },
+        new() { Id = 3, ClientName = "Zanele R.", Quote = "I booked before a special celebration and left feeling completely looked after. Nicky helped me choose a soft, elegant style that photographed beautifully and suited the occasion perfectly.", Rating = 5, IsFeatured = false, IsApproved = true, Status = ContentStatus.Published, DisplayOrder = 3 },
+        new() { Id = 4, ClientName = "Nomsa T.", Quote = "I appreciate how thoughtful the service feels every time. My nails are healthy, beautifully shaped, and never rushed. It is the kind of beauty appointment that makes you feel quietly confident.", Rating = 5, IsFeatured = false, IsApproved = true, Status = ContentStatus.Published, DisplayOrder = 4 }
     ];
 
     public static IReadOnlyList<FaqItem> FaqSeed =>

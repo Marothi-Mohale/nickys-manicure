@@ -10,12 +10,12 @@ public sealed class UpsertTestimonialRequestValidator : AbstractValidator<Upsert
         RuleFor(x => x.ClientName)
             .TrimmedRequiredText(80, "Client name");
 
-        RuleFor(x => x.Highlight)
-            .TrimmedRequiredText(120, "Highlight");
+        RuleFor(x => x.Quote)
+            .TrimmedRequiredText(600, "Quote")
+            .MinimumLength(20).WithMessage("Quote must be at least 20 characters long.");
 
-        RuleFor(x => x.Review)
-            .TrimmedRequiredText(500, "Review")
-            .MinimumLength(20).WithMessage("Review must be at least 20 characters long.");
+        RuleFor(x => x.Rating)
+            .InclusiveBetween(1, 5).WithMessage("Rating must be between 1 and 5.");
 
         RuleFor(x => x.Status)
             .Must(status => status is "Draft" or "Published" or "Archived")

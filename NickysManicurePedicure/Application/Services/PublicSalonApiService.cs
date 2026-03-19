@@ -133,12 +133,16 @@ public sealed class PublicSalonApiService(
     {
         ArgumentNullException.ThrowIfNull(query);
 
+        var testimonialsBaseQuery = dbContext.Testimonials
+            .AsNoTracking()
+            .Where(x => x.Status == ContentStatus.Published && x.IsApproved);
+
         var testimonialsQuery = (query.SortBy, query.SortDirection) switch
         {
-            ("clientName", "desc") => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderByDescending(x => x.ClientName).ThenBy(x => x.DisplayOrder),
-            ("clientName", _) => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderBy(x => x.ClientName).ThenBy(x => x.DisplayOrder),
-            ("displayOrder", "desc") => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.ClientName),
-            _ => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderBy(x => x.DisplayOrder).ThenBy(x => x.ClientName)
+            ("clientName", "desc") => testimonialsBaseQuery.OrderByDescending(x => x.ClientName).ThenBy(x => x.DisplayOrder),
+            ("clientName", _) => testimonialsBaseQuery.OrderBy(x => x.ClientName).ThenBy(x => x.DisplayOrder),
+            ("displayOrder", "desc") => testimonialsBaseQuery.OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.ClientName),
+            _ => testimonialsBaseQuery.OrderBy(x => x.DisplayOrder).ThenBy(x => x.ClientName)
         };
 
         return await testimonialsQuery
@@ -146,8 +150,8 @@ public sealed class PublicSalonApiService(
             {
                 Id = x.Id,
                 ClientName = x.ClientName,
-                Highlight = x.Highlight,
-                Review = x.Review,
+                Quote = x.Quote,
+                Rating = x.Rating,
                 IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder
             })

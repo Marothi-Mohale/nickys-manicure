@@ -14,14 +14,12 @@
             {
                 <article class="testimonial-card">
                     <div class="testimonial-stars" aria-hidden="true">
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
-                        <i class="bi bi-star-fill"></i>
+                        @for (var star = 0; star < testimonial.Rating; star++)
+                        {
+                            <i class="bi bi-star-fill"></i>
+                        }
                     </div>
-                    <span class="testimonial-highlight">@testimonial.Highlight</span>
-                    <p class="testimonial-copy">“@testimonial.Review”</p>
+                    <p class="testimonial-copy">“@testimonial.Quote”</p>
                     <strong class="testimonial-name">@testimonial.ClientName</strong>
                 </article>
             }
