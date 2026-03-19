@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-COPY NickysManicurePedicure.slnx ./
+COPY NickysManicure.slnx ./
 COPY NickysManicurePedicure/*.csproj NickysManicurePedicure/
 COPY NickysManicurePedicure.Tests/*.csproj NickysManicurePedicure.Tests/
 
