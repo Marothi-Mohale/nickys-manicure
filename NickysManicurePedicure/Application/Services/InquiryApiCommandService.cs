@@ -11,7 +11,7 @@ public sealed class InquiryApiCommandService(
     ApplicationDbContext dbContext,
     ILogger<InquiryApiCommandService> logger) : IInquiryApiCommandService
 {
-    public async Task<BookingRequestAcceptedResponse> CreateBookingRequestAsync(
+    public async Task<BookingCreateResponse> CreateBookingRequestAsync(
         CreateBookingRequestDto request,
         CancellationToken cancellationToken)
     {
@@ -45,14 +45,15 @@ public sealed class InquiryApiCommandService(
             bookingRequest.Email,
             bookingRequest.SourcePage);
 
-        return new BookingRequestAcceptedResponse
+        return new BookingCreateResponse
         {
-            BookingRequestId = bookingRequest.Id,
+            BookingId = bookingRequest.Id,
+            Status = bookingRequest.Status.ToString(),
             Message = "Your booking request has been received. Our team will follow up shortly."
         };
     }
 
-    public async Task<ContactInquiryAcceptedResponse> CreateContactInquiryAsync(
+    public async Task<ContactInquiryCreateResponse> CreateContactInquiryAsync(
         CreateContactInquiryDto request,
         CancellationToken cancellationToken)
     {
@@ -77,9 +78,10 @@ public sealed class InquiryApiCommandService(
             contactInquiry.Email,
             contactInquiry.SourcePage);
 
-        return new ContactInquiryAcceptedResponse
+        return new ContactInquiryCreateResponse
         {
-            ContactInquiryId = contactInquiry.Id,
+            InquiryId = contactInquiry.Id,
+            Status = contactInquiry.Status.ToString(),
             Message = "Your inquiry has been received. We will get back to you as soon as possible."
         };
     }

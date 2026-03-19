@@ -25,11 +25,11 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
 
         response.EnsureSuccessStatusCode();
 
-        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<SalonServiceResponse>>();
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<ServiceListItemResponse>>();
 
         Assert.NotNull(payload);
-        Assert.Equal(1, payload.Page);
-        Assert.Equal(2, payload.PageSize);
+        Assert.Equal(1, payload.Pagination.Page);
+        Assert.Equal(2, payload.Pagination.PageSize);
         Assert.NotEmpty(payload.Items);
         Assert.All(payload.Items, item => Assert.True(item.IsFeatured));
     }
@@ -65,9 +65,9 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
 
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
 
-        var payload = await response.Content.ReadFromJsonAsync<ContactInquiryAcceptedResponse>();
+        var payload = await response.Content.ReadFromJsonAsync<ContactInquiryCreateResponse>();
         Assert.NotNull(payload);
-        Assert.True(payload.ContactInquiryId > 0);
+        Assert.True(payload.InquiryId > 0);
     }
 
     [Fact]

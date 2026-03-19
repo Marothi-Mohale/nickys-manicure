@@ -1,6 +1,6 @@
 namespace NickysManicurePedicure.Dtos.Responses;
 
-public sealed class FaqItemResponse
+public sealed class FaqListItemResponse
 {
     public required int Id { get; init; }
     public required string Question { get; init; }

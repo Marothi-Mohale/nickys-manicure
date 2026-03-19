@@ -13,7 +13,7 @@ public sealed class PublicSalonApiService(
     ApplicationDbContext dbContext,
     ILogger<PublicSalonApiService> logger) : IPublicSalonApiService
 {
-    public async Task<PagedResponse<SalonServiceResponse>> GetServicesAsync(
+    public async Task<PagedResponse<ServiceListItemResponse>> GetServicesAsync(
         ServiceCatalogQueryParameters query,
         CancellationToken cancellationToken)
     {
@@ -47,20 +47,53 @@ public sealed class PublicSalonApiService(
         logger.LogDebug("Retrieving paged services catalog. Page {Page}, PageSize {PageSize}.", query.Page, query.PageSize);
 
         return await servicesQuery
-            .Select(x => new SalonServiceResponse
+            .Select(x => new ServiceListItemResponse
             {
                 Id = x.Id,
                 Name = x.Name,
+                Slug = x.Slug,
                 Description = x.Description,
-                Duration = x.DurationLabel,
-                PriceFrom = x.PriceFromLabel,
+                DurationLabel = x.DurationLabel,
+                PriceFromLabel = x.PriceFromLabel,
                 IsFeatured = x.IsFeatured,
-                DisplayOrder = x.DisplayOrder
+                DisplayOrder = x.DisplayOrder,
+                Category = new ServiceCategorySummaryResponse
+                {
+                    Id = x.ServiceCategoryId,
+                    Name = x.ServiceCategory!.Name,
+                    Slug = x.ServiceCategory.Slug
+                }
             })
             .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
     }
 
-    public async Task<PagedResponse<TestimonialResponse>> GetTestimonialsAsync(
+    public async Task<ServiceDetailResponse?> GetServiceByIdAsync(int id, CancellationToken cancellationToken)
+    {
+        return await dbContext.Services
+            .AsNoTracking()
+            .Where(x => x.Status == ContentStatus.Published)
+            .Where(x => x.Id == id)
+            .Select(x => new ServiceDetailResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Slug = x.Slug,
+                Description = x.Description,
+                DurationLabel = x.DurationLabel,
+                PriceFromLabel = x.PriceFromLabel,
+                IsFeatured = x.IsFeatured,
+                DisplayOrder = x.DisplayOrder,
+                Category = new ServiceCategorySummaryResponse
+                {
+                    Id = x.ServiceCategoryId,
+                    Name = x.ServiceCategory!.Name,
+                    Slug = x.ServiceCategory.Slug
+                }
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<PagedResponse<TestimonialListItemResponse>> GetTestimonialsAsync(
         TestimonialQueryParameters query,
         CancellationToken cancellationToken)
     {
@@ -75,18 +108,19 @@ public sealed class PublicSalonApiService(
         };
 
         return await testimonialsQuery
-            .Select(x => new TestimonialResponse
+            .Select(x => new TestimonialListItemResponse
             {
                 Id = x.Id,
                 ClientName = x.ClientName,
                 Highlight = x.Highlight,
                 Review = x.Review,
+                IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder
             })
             .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
     }
 
-    public async Task<PagedResponse<GalleryItemResponse>> GetGalleryItemsAsync(
+    public async Task<PagedResponse<GalleryListItemResponse>> GetGalleryItemsAsync(
         GalleryItemQueryParameters query,
         CancellationToken cancellationToken)
     {
@@ -118,7 +152,7 @@ public sealed class PublicSalonApiService(
         };
 
         return await galleryQuery
-            .Select(x => new GalleryItemResponse
+            .Select(x => new GalleryListItemResponse
             {
                 Id = x.Id,
                 Title = x.Title,
@@ -129,12 +163,12 @@ public sealed class PublicSalonApiService(
                 AltText = x.AltText,
                 IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder,
-                CreatedUtc = x.CreatedAtUtc
+                CreatedAtUtc = x.CreatedAtUtc
             })
             .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
     }
 
-    public async Task<PagedResponse<FaqItemResponse>> GetFaqItemsAsync(
+    public async Task<PagedResponse<FaqListItemResponse>> GetFaqItemsAsync(
         FaqQueryParameters query,
         CancellationToken cancellationToken)
     {
@@ -159,7 +193,7 @@ public sealed class PublicSalonApiService(
         };
 
         return await faqQuery
-            .Select(x => new FaqItemResponse
+            .Select(x => new FaqListItemResponse
             {
                 Id = x.Id,
                 Question = x.Question,

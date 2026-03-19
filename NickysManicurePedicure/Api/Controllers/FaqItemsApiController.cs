@@ -12,8 +12,8 @@ namespace NickysManicurePedicure.Api.Controllers;
 public sealed class FaqItemsApiController(IPublicSalonApiService publicSalonApiService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<FaqItemResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResponse<FaqItemResponse>>> GetList(
+    [ProducesResponseType(typeof(PagedResponse<FaqListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<FaqListItemResponse>>> GetList(
         [FromQuery] FaqQueryParameters query,
         CancellationToken cancellationToken)
     {

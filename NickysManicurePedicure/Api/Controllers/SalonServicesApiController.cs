@@ -12,11 +12,22 @@ namespace NickysManicurePedicure.Api.Controllers;
 public sealed class SalonServicesApiController(IPublicSalonApiService publicSalonApiService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<SalonServiceResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResponse<SalonServiceResponse>>> GetList(
+    [ProducesResponseType(typeof(PagedResponse<ServiceListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<ServiceListItemResponse>>> GetList(
         [FromQuery] ServiceCatalogQueryParameters query,
         CancellationToken cancellationToken)
     {
         return Ok(await publicSalonApiService.GetServicesAsync(query, cancellationToken));
+    }
+
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(ServiceDetailResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<ServiceDetailResponse>> GetById(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var service = await publicSalonApiService.GetServiceByIdAsync(id, cancellationToken);
+        return service is null ? NotFound() : Ok(service);
     }
 }

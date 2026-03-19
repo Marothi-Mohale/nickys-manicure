@@ -11,9 +11,9 @@ namespace NickysManicurePedicure.Api.Controllers;
 public sealed class ContactInquiriesApiController(IInquiryApiCommandService inquiryApiCommandService) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(typeof(ContactInquiryAcceptedResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(ContactInquiryCreateResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<ContactInquiryAcceptedResponse>> Create(
+    public async Task<ActionResult<ContactInquiryCreateResponse>> Create(
         [FromBody] CreateContactInquiryDto request,
         CancellationToken cancellationToken)
     {

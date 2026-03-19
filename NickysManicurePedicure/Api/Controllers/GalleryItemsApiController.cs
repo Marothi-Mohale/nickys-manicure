@@ -12,8 +12,8 @@ namespace NickysManicurePedicure.Api.Controllers;
 public sealed class GalleryItemsApiController(IPublicSalonApiService publicSalonApiService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<GalleryItemResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResponse<GalleryItemResponse>>> GetList(
+    [ProducesResponseType(typeof(PagedResponse<GalleryListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<GalleryListItemResponse>>> GetList(
         [FromQuery] GalleryItemQueryParameters query,
         CancellationToken cancellationToken)
     {

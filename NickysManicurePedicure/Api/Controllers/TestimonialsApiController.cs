@@ -12,8 +12,8 @@ namespace NickysManicurePedicure.Api.Controllers;
 public sealed class TestimonialsApiController(IPublicSalonApiService publicSalonApiService) : ControllerBase
 {
     [HttpGet]
-    [ProducesResponseType(typeof(PagedResponse<TestimonialResponse>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<PagedResponse<TestimonialResponse>>> GetList(
+    [ProducesResponseType(typeof(PagedResponse<TestimonialListItemResponse>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<PagedResponse<TestimonialListItemResponse>>> GetList(
         [FromQuery] TestimonialQueryParameters query,
         CancellationToken cancellationToken)
     {

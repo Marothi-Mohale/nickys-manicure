@@ -11,9 +11,9 @@ namespace NickysManicurePedicure.Api.Controllers;
 public sealed class BookingRequestsApiController(IInquiryApiCommandService inquiryApiCommandService) : ControllerBase
 {
     [HttpPost]
-    [ProducesResponseType(typeof(BookingRequestAcceptedResponse), StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(BookingCreateResponse), StatusCodes.Status202Accepted)]
     [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<BookingRequestAcceptedResponse>> Create(
+    public async Task<ActionResult<BookingCreateResponse>> Create(
         [FromBody] CreateBookingRequestDto request,
         CancellationToken cancellationToken)
     {
