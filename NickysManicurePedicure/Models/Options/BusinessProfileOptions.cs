@@ -29,6 +29,12 @@ public class BusinessProfileOptions
     [Required]
     public string PostalCode { get; set; } = string.Empty;
     public string InstagramHandle { get; set; } = string.Empty;
+    [Url]
+    public string InstagramUrl { get; set; } = string.Empty;
+    [Url]
+    public string FacebookUrl { get; set; } = string.Empty;
+    [Url]
+    public string TikTokUrl { get; set; } = string.Empty;
     [Range(0, 100)]
     public int YearsOfExperience { get; set; }
     public string HeroHeadline { get; set; } = string.Empty;

@@ -918,6 +918,42 @@ a:hover {
     gap: 1.35rem;
 }
 
+.social-link-row,
+.contact-social-links {
+    display: flex;
+    gap: 0.85rem;
+    flex-wrap: wrap;
+}
+
+.social-link-row {
+    margin: 0 0 1.75rem;
+}
+
+.social-link-pill,
+.contact-social-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.1rem;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.74);
+    color: var(--charcoal-soft);
+    font-weight: 700;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.social-link-pill:hover,
+.contact-social-links a:hover {
+    transform: translateY(-2px);
+    border-color: rgba(200, 166, 109, 0.32);
+    box-shadow: var(--shadow-sm);
+}
+
+.social-link-pill i {
+    color: var(--gold);
+}
+
 .contact-detail-card {
     height: 100%;
     padding: 2rem;
@@ -993,6 +1029,10 @@ a:hover {
     margin: 1.5rem 0 0;
     display: grid;
     gap: 0.85rem;
+}
+
+.contact-social-links {
+    margin-top: 1.5rem;
 }
 
 .contact-hours-card h3,
