@@ -49,6 +49,18 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
+    public async Task GetServices_WithOversizedPageSize_ReturnsValidationProblemDetails()
+    {
+        var response = await _client.GetAsync("/api/services?page=1&pageSize=1000");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var payload = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        Assert.NotNull(payload);
+        Assert.True(payload.Errors.ContainsKey("PageSize"));
+    }
+
+    [Fact]
     public async Task GetServices_CanSortByPriceAscending()
     {
         var response = await _client.GetAsync("/api/services?sortBy=price&sortDirection=asc");

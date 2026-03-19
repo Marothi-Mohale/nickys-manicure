@@ -3,7 +3,7 @@ using NickysManicurePedicure.Dtos.Requests;
 
 namespace NickysManicurePedicure.Validation;
 
-public sealed class BookingQueryParametersValidator : AbstractValidator<BookingQueryParameters>
+public sealed class BookingQueryParametersValidator : PaginationRequestValidator<BookingQueryParameters>
 {
     public BookingQueryParametersValidator()
     {
@@ -17,5 +17,13 @@ public sealed class BookingQueryParametersValidator : AbstractValidator<BookingQ
         RuleFor(x => x)
             .Must(x => x.FromDate is null || x.ToDate is null || x.FromDate <= x.ToDate)
             .WithMessage("From date must be earlier than or equal to to date.");
+
+        RuleFor(x => x.SortBy)
+            .Must(sortBy => sortBy is "createdAtUtc" or "preferredDate" or "status")
+            .WithMessage("Sort by must be createdAtUtc, preferredDate, or status.");
+
+        RuleFor(x => x.SortDirection)
+            .Must(direction => direction is "asc" or "desc")
+            .WithMessage("Sort direction must be asc or desc.");
     }
 }

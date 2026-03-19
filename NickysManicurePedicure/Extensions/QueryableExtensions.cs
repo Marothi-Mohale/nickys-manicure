@@ -26,6 +26,7 @@ public static class QueryableExtensions
                 Page = page,
                 PageSize = pageSize,
                 TotalCount = totalCount,
+                CurrentItemCount = items.Count,
                 TotalPages = totalPages,
                 HasNextPage = totalPages > 0 && page < totalPages,
                 HasPreviousPage = page > 1
