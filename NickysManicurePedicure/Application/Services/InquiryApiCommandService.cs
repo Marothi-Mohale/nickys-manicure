@@ -39,7 +39,8 @@ public sealed class InquiryApiCommandService(
         {
             InquiryId = contactInquiry.Id,
             Status = contactInquiry.Status.ToString(),
-            Message = "Your inquiry has been received. We will get back to you as soon as possible."
+            Message = "Your inquiry has been received. We will get back to you as soon as possible.",
+            DetailUrl = $"/api/contact-inquiries/{contactInquiry.Id}"
         };
     }
 }

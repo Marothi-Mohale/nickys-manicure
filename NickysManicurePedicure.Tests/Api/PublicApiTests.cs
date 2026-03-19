@@ -122,17 +122,101 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
             FullName = "Test Client",
             Email = "client@example.com",
             PhoneNumber = "+27682518739",
+            Subject = "Availability question",
             Message = "I would like to ask about availability for next week.",
             SourcePage = "Api"
         };
 
         var response = await _client.PostAsJsonAsync("/api/contact-inquiries", request);
 
-        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
 
         var payload = await response.Content.ReadFromJsonAsync<ContactInquiryCreateResponse>();
         Assert.NotNull(payload);
         Assert.True(payload.InquiryId > 0);
+        Assert.Equal($"/api/contact-inquiries/{payload.InquiryId}", payload.DetailUrl);
+    }
+
+    [Fact]
+    public async Task GetContactInquiries_ReturnsPagedInquiries()
+    {
+        var createRequest = new CreateContactInquiryDto
+        {
+            FullName = "List Inquiry Client",
+            Email = "list-inquiry@example.com",
+            PhoneNumber = "+27682518739",
+            Subject = "General question",
+            Message = "I would like to ask a few questions about your services.",
+            SourcePage = "Api"
+        };
+
+        await _client.PostAsJsonAsync("/api/contact-inquiries", createRequest);
+
+        var response = await _client.GetAsync("/api/contact-inquiries?page=1&pageSize=10");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<ContactInquiryReadResponse>>();
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload.Items);
+    }
+
+    [Fact]
+    public async Task GetContactInquiryById_ReturnsInquiry()
+    {
+        var createRequest = new CreateContactInquiryDto
+        {
+            FullName = "Detail Inquiry Client",
+            Email = "detail-inquiry@example.com",
+            PhoneNumber = "+27682518739",
+            Subject = "Follow-up question",
+            Message = "I want to know more about booking options.",
+            SourcePage = "Api"
+        };
+
+        var createResponse = await _client.PostAsJsonAsync("/api/contact-inquiries", createRequest);
+        var createPayload = await createResponse.Content.ReadFromJsonAsync<ContactInquiryCreateResponse>();
+        Assert.NotNull(createPayload);
+
+        var response = await _client.GetAsync($"/api/contact-inquiries/{createPayload.InquiryId}");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<ContactInquiryReadResponse>();
+        Assert.NotNull(payload);
+        Assert.Equal(createPayload.InquiryId, payload.Id);
+    }
+
+    [Fact]
+    public async Task PatchContactInquiryStatus_UpdatesInquiry()
+    {
+        var createRequest = new CreateContactInquiryDto
+        {
+            FullName = "Patch Inquiry Client",
+            Email = "patch-inquiry@example.com",
+            PhoneNumber = "+27682518739",
+            Subject = "Status check",
+            Message = "Please let me know whether you received my message.",
+            SourcePage = "Api"
+        };
+
+        var createResponse = await _client.PostAsJsonAsync("/api/contact-inquiries", createRequest);
+        var createPayload = await createResponse.Content.ReadFromJsonAsync<ContactInquiryCreateResponse>();
+        Assert.NotNull(createPayload);
+
+        var patchResponse = await _client.PatchAsJsonAsync(
+            $"/api/contact-inquiries/{createPayload.InquiryId}/status",
+            new UpdateContactInquiryStatusDto
+            {
+                Status = "Responded",
+                AdminNotes = "Responded by admin."
+            });
+
+        patchResponse.EnsureSuccessStatusCode();
+
+        var patchPayload = await patchResponse.Content.ReadFromJsonAsync<ContactInquiryReadResponse>();
+        Assert.NotNull(patchPayload);
+        Assert.Equal("Responded", patchPayload.Status);
     }
 
     [Fact]
