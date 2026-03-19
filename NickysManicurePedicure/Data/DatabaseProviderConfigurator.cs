@@ -42,12 +42,14 @@ public static class DatabaseProviderConfigurator
 
         var databasePath = builder.DataSource?.Trim();
 
-        if (string.IsNullOrWhiteSpace(databasePath) || databasePath == ":memory:" || Path.IsPathRooted(databasePath))
+        if (string.IsNullOrWhiteSpace(databasePath) || databasePath == ":memory:")
         {
             return;
         }
 
-        var fullPath = Path.GetFullPath(databasePath, contentRootPath);
+        var fullPath = Path.IsPathRooted(databasePath)
+            ? databasePath
+            : Path.GetFullPath(databasePath, contentRootPath);
         var directory = Path.GetDirectoryName(fullPath);
 
         if (!string.IsNullOrWhiteSpace(directory))
