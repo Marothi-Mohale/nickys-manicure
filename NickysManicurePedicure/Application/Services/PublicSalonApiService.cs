@@ -36,10 +36,22 @@ public sealed class PublicSalonApiService(
                 x.Description.Contains(search));
         }
 
+        if (!string.IsNullOrWhiteSpace(query.Category))
+        {
+            var category = query.Category.Trim().ToLowerInvariant();
+            servicesQuery = servicesQuery.Where(x => x.ServiceCategory != null && x.ServiceCategory.Slug == category);
+        }
+
         servicesQuery = (query.SortBy, query.SortDirection) switch
         {
             ("name", "desc") => servicesQuery.OrderByDescending(x => x.Name).ThenBy(x => x.DisplayOrder),
             ("name", _) => servicesQuery.OrderBy(x => x.Name).ThenBy(x => x.DisplayOrder),
+            ("price", "desc") => servicesQuery.OrderByDescending(x => x.PriceFromAmount.HasValue)
+                .ThenByDescending(x => x.PriceFromAmount)
+                .ThenBy(x => x.DisplayOrder),
+            ("price", _) => servicesQuery.OrderByDescending(x => x.PriceFromAmount.HasValue)
+                .ThenBy(x => x.PriceFromAmount)
+                .ThenBy(x => x.DisplayOrder),
             ("displayOrder", "desc") => servicesQuery.OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.Name),
             _ => servicesQuery.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Name)
         };
@@ -55,13 +67,15 @@ public sealed class PublicSalonApiService(
                 Description = x.Description,
                 DurationLabel = x.DurationLabel,
                 PriceFromLabel = x.PriceFromLabel,
+                PriceFromAmount = x.PriceFromAmount,
                 IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder,
                 Category = new ServiceCategorySummaryResponse
                 {
                     Id = x.ServiceCategoryId,
                     Name = x.ServiceCategory!.Name,
-                    Slug = x.ServiceCategory.Slug
+                    Slug = x.ServiceCategory.Slug,
+                    Description = x.ServiceCategory.Description
                 }
             })
             .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
@@ -81,16 +95,36 @@ public sealed class PublicSalonApiService(
                 Description = x.Description,
                 DurationLabel = x.DurationLabel,
                 PriceFromLabel = x.PriceFromLabel,
+                PriceFromAmount = x.PriceFromAmount,
                 IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder,
                 Category = new ServiceCategorySummaryResponse
                 {
                     Id = x.ServiceCategoryId,
                     Name = x.ServiceCategory!.Name,
-                    Slug = x.ServiceCategory.Slug
+                    Slug = x.ServiceCategory.Slug,
+                    Description = x.ServiceCategory.Description
                 }
             })
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyCollection<ServiceCategoryListItemResponse>> GetServiceCategoriesAsync(CancellationToken cancellationToken)
+    {
+        return await dbContext.ServiceCategories
+            .AsNoTracking()
+            .Where(x => x.Status == ContentStatus.Published)
+            .OrderBy(x => x.DisplayOrder)
+            .Select(x => new ServiceCategoryListItemResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Slug = x.Slug,
+                Description = x.Description,
+                DisplayOrder = x.DisplayOrder,
+                ServiceCount = x.Services.Count(service => service.Status == ContentStatus.Published)
+            })
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<PagedResponse<TestimonialListItemResponse>> GetTestimonialsAsync(

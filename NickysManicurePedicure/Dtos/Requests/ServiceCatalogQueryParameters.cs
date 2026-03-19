@@ -9,10 +9,13 @@ public sealed class ServiceCatalogQueryParameters : PaginationRequest
     [StringLength(100)]
     public string? Search { get; init; }
 
+    [StringLength(80)]
+    public string? Category { get; init; }
+
     public bool? FeaturedOnly { get; init; }
 
     [StringLength(20)]
-    [AllowedStringValues("displayOrder", "name")]
+    [AllowedStringValues("displayOrder", "name", "price")]
     public string SortBy { get; init; } = "displayOrder";
 
     [StringLength(4)]

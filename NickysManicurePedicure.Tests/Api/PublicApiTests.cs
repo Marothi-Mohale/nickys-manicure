@@ -35,6 +35,71 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
+    public async Task GetServices_CanFilterByCategory()
+    {
+        var response = await _client.GetAsync("/api/services?category=pedicure");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<ServiceListItemResponse>>();
+
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload.Items);
+        Assert.All(payload.Items, item => Assert.Equal("pedicure", item.Category.Slug));
+    }
+
+    [Fact]
+    public async Task GetServices_CanSortByPriceAscending()
+    {
+        var response = await _client.GetAsync("/api/services?sortBy=price&sortDirection=asc");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<PagedResponse<ServiceListItemResponse>>();
+
+        Assert.NotNull(payload);
+        var pricedItems = payload.Items
+            .Where(item => item.PriceFromAmount.HasValue)
+            .ToList();
+
+        Assert.NotEmpty(pricedItems);
+        Assert.Equal(pricedItems.OrderBy(item => item.PriceFromAmount).Select(item => item.Id), pricedItems.Select(item => item.Id));
+    }
+
+    [Fact]
+    public async Task GetServiceById_ReturnsServiceDetail()
+    {
+        var listResponse = await _client.GetAsync("/api/services?page=1&pageSize=1");
+        listResponse.EnsureSuccessStatusCode();
+
+        var listPayload = await listResponse.Content.ReadFromJsonAsync<PagedResponse<ServiceListItemResponse>>();
+        Assert.NotNull(listPayload);
+
+        var serviceId = listPayload.Items.First().Id;
+        var detailResponse = await _client.GetAsync($"/api/services/{serviceId}");
+
+        detailResponse.EnsureSuccessStatusCode();
+
+        var detailPayload = await detailResponse.Content.ReadFromJsonAsync<ServiceDetailResponse>();
+        Assert.NotNull(detailPayload);
+        Assert.Equal(serviceId, detailPayload.Id);
+    }
+
+    [Fact]
+    public async Task GetServiceCategories_ReturnsPublishedCategories()
+    {
+        var response = await _client.GetAsync("/api/service-categories");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<ServiceCategoryListItemResponse>>();
+
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload);
+        Assert.All(payload, item => Assert.True(item.ServiceCount >= 0));
+    }
+
+    [Fact]
     public async Task GetBusinessProfile_ReturnsStructuredHours()
     {
         var response = await _client.GetAsync("/api/business/profile");

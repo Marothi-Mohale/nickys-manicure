@@ -8,6 +8,7 @@ public class Service : AuditableEntity
     public string Description { get; set; } = string.Empty;
     public string DurationLabel { get; set; } = string.Empty;
     public string PriceFromLabel { get; set; } = string.Empty;
+    public decimal? PriceFromAmount { get; set; }
     public bool IsFeatured { get; set; }
     public ContentStatus Status { get; set; } = ContentStatus.Published;
     public int DisplayOrder { get; set; }

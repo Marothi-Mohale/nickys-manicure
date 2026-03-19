@@ -10,6 +10,8 @@ public interface IPublicSalonApiService
 
     Task<ServiceDetailResponse?> GetServiceByIdAsync(int id, CancellationToken cancellationToken);
 
+    Task<IReadOnlyCollection<ServiceCategoryListItemResponse>> GetServiceCategoriesAsync(CancellationToken cancellationToken);
+
     Task<PagedResponse<TestimonialListItemResponse>> GetTestimonialsAsync(TestimonialQueryParameters query, CancellationToken cancellationToken);
 
     Task<PagedResponse<GalleryListItemResponse>> GetGalleryItemsAsync(GalleryItemQueryParameters query, CancellationToken cancellationToken);

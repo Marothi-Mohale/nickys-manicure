@@ -13,11 +13,13 @@ public sealed class ServiceConfiguration : IEntityTypeConfiguration<Service>
         builder.Property(x => x.Description).HasMaxLength(1200).IsRequired();
         builder.Property(x => x.DurationLabel).HasMaxLength(60).IsRequired();
         builder.Property(x => x.PriceFromLabel).HasMaxLength(60).IsRequired();
+        builder.Property(x => x.PriceFromAmount).HasPrecision(10, 2);
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
 
         builder.HasIndex(x => x.Slug).IsUnique();
         builder.HasIndex(x => new { x.ServiceCategoryId, x.DisplayOrder });
         builder.HasIndex(x => new { x.Status, x.IsFeatured, x.DisplayOrder });
+        builder.HasIndex(x => new { x.Status, x.PriceFromAmount });
 
         builder.HasOne(x => x.ServiceCategory)
             .WithMany(x => x.Services)

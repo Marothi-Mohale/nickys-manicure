@@ -8,6 +8,7 @@ public sealed class ServiceListItemResponse
     public required string Description { get; init; }
     public required string DurationLabel { get; init; }
     public required string PriceFromLabel { get; init; }
+    public decimal? PriceFromAmount { get; init; }
     public required bool IsFeatured { get; init; }
     public required int DisplayOrder { get; init; }
     public required ServiceCategorySummaryResponse Category { get; init; }
