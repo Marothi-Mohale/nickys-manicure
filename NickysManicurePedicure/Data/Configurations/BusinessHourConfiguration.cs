@@ -16,10 +16,10 @@ public sealed class BusinessHourConfiguration : IEntityTypeConfiguration<Busines
         {
             table.HasCheckConstraint(
                 "CK_BusinessHours_ClosedTimes",
-                "\"IsClosed\" = 1 OR (\"OpenTime\" IS NOT NULL AND \"CloseTime\" IS NOT NULL)");
+                ConfigurationSql.BusinessHoursClosedTimes);
             table.HasCheckConstraint(
                 "CK_BusinessHours_TimeRange",
-                "\"IsClosed\" = 1 OR \"OpenTime\" < \"CloseTime\"");
+                ConfigurationSql.BusinessHoursTimeRange);
         });
         builder.HasIndex(x => new { x.BusinessProfileId, x.DayOfWeek }).IsUnique();
     }

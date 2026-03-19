@@ -13,7 +13,7 @@ public sealed class TestimonialConfiguration : IEntityTypeConfiguration<Testimon
         builder.Property(x => x.Rating).IsRequired();
         builder.Property(x => x.IsApproved).IsRequired();
         builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
-        builder.ToTable(t => t.HasCheckConstraint("CK_Testimonials_Rating", "\"Rating\" >= 1 AND \"Rating\" <= 5"));
+        builder.ToTable(t => t.HasCheckConstraint("CK_Testimonials_Rating", ConfigurationSql.TestimonialRatingRange));
         builder.HasIndex(x => new { x.Status, x.IsApproved, x.IsFeatured, x.DisplayOrder });
     }
 }
