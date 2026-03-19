@@ -243,7 +243,6 @@ public sealed class PublicSalonApiService(
     {
         var profile = await dbContext.BusinessProfiles
             .AsNoTracking()
-            .Include(x => x.BusinessHours.OrderBy(hour => hour.DisplayOrder))
             .FirstOrDefaultAsync(cancellationToken);
 
         if (profile is null)
@@ -255,33 +254,47 @@ public sealed class PublicSalonApiService(
         return new BusinessProfileResponse
         {
             Id = profile.Id,
-            Name = profile.Name,
+            BusinessName = profile.Name,
             Tagline = profile.Tagline,
-            Phone = profile.Phone,
-            PhoneHref = profile.PhoneHref,
+            Description = profile.Description,
+            PhoneNumber = profile.Phone,
             Email = profile.Email,
             AddressLine1 = profile.AddressLine1,
-            Suburb = profile.Suburb,
             City = profile.City,
             Region = profile.Region,
             PostalCode = profile.PostalCode,
-            WhatsAppHref = profile.WhatsAppHref,
             InstagramHandle = profile.InstagramHandle,
-            BookingPolicy = profile.BookingPolicy,
-            AboutSummary = profile.AboutSummary,
-            BusinessHours = profile.BusinessHours
-                .OrderBy(x => x.DisplayOrder)
-                .Select(x => new BusinessHourResponse
-                {
-                    Id = x.Id,
-                    DayOfWeek = x.DayOfWeek.ToString(),
-                    IsClosed = x.IsClosed,
-                    OpenTime = x.OpenTime,
-                    CloseTime = x.CloseTime,
-                    Notes = x.Notes,
-                    DisplayOrder = x.DisplayOrder
-                })
-                .ToList()
+            YearsOfExperience = profile.YearsOfExperience,
+            HeroHeadline = profile.HeroHeadline,
+            HeroSubheadline = profile.HeroSubheadline
         };
+    }
+
+    public async Task<IReadOnlyCollection<BusinessHourResponse>> GetBusinessHoursAsync(CancellationToken cancellationToken)
+    {
+        var profile = await dbContext.BusinessProfiles
+            .AsNoTracking()
+            .Include(x => x.BusinessHours.OrderBy(hour => hour.DisplayOrder))
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (profile is null)
+        {
+            logger.LogWarning("Business hours were requested but no business profile exists.");
+            return [];
+        }
+
+        return profile.BusinessHours
+            .OrderBy(x => x.DisplayOrder)
+            .Select(x => new BusinessHourResponse
+            {
+                Id = x.Id,
+                DayOfWeek = x.DayOfWeek.ToString(),
+                IsClosed = x.IsClosed,
+                OpenTime = x.OpenTime,
+                CloseTime = x.CloseTime,
+                Notes = x.Notes,
+                DisplayOrder = x.DisplayOrder
+            })
+            .ToList();
     }
 }

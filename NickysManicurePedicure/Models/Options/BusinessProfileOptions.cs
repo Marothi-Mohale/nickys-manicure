@@ -10,6 +10,7 @@ public class BusinessProfileOptions
     public string Name { get; set; } = string.Empty;
     [Required]
     public string Tagline { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
     [Required]
     public string Phone { get; set; } = string.Empty;
     [Required]
@@ -28,6 +29,10 @@ public class BusinessProfileOptions
     [Required]
     public string PostalCode { get; set; } = string.Empty;
     public string InstagramHandle { get; set; } = string.Empty;
+    [Range(0, 100)]
+    public int YearsOfExperience { get; set; }
+    public string HeroHeadline { get; set; } = string.Empty;
+    public string HeroSubheadline { get; set; } = string.Empty;
     [Required]
     public string WhatsAppHref { get; set; } = string.Empty;
     [MinLength(1)]

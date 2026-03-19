@@ -100,18 +100,34 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
     }
 
     [Fact]
-    public async Task GetBusinessProfile_ReturnsStructuredHours()
+    public async Task GetBusinessProfile_ReturnsFrontendFields()
     {
-        var response = await _client.GetAsync("/api/business/profile");
+        var response = await _client.GetAsync("/api/business-profile");
 
         response.EnsureSuccessStatusCode();
 
         var payload = await response.Content.ReadFromJsonAsync<BusinessProfileResponse>();
 
         Assert.NotNull(payload);
-        Assert.Equal("Nicky's Manicure & Pedicure", payload.Name);
-        Assert.NotEmpty(payload.BusinessHours);
-        Assert.Contains(payload.BusinessHours, hour => hour.DayOfWeek == DayOfWeek.Monday.ToString());
+        Assert.Equal("Nicky's Manicure & Pedicure", payload.BusinessName);
+        Assert.Equal("Cape Town", payload.City);
+        Assert.True(payload.YearsOfExperience > 0);
+        Assert.False(string.IsNullOrWhiteSpace(payload.HeroHeadline));
+        Assert.False(string.IsNullOrWhiteSpace(payload.HeroSubheadline));
+    }
+
+    [Fact]
+    public async Task GetBusinessHours_ReturnsStructuredHours()
+    {
+        var response = await _client.GetAsync("/api/business-hours");
+
+        response.EnsureSuccessStatusCode();
+
+        var payload = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<BusinessHourResponse>>();
+
+        Assert.NotNull(payload);
+        Assert.NotEmpty(payload);
+        Assert.Contains(payload, hour => hour.DayOfWeek == DayOfWeek.Monday.ToString());
     }
 
     [Fact]

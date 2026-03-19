@@ -161,6 +161,7 @@ public static class SeedDataExtensions
                 Id = 1,
                 Name = options.Name,
                 Tagline = options.Tagline,
+                Description = options.Description,
                 Phone = options.Phone,
                 PhoneHref = options.PhoneHref,
                 Email = options.Email,
@@ -171,6 +172,9 @@ public static class SeedDataExtensions
                 PostalCode = options.PostalCode,
                 WhatsAppHref = options.WhatsAppHref,
                 InstagramHandle = options.InstagramHandle,
+                YearsOfExperience = options.YearsOfExperience,
+                HeroHeadline = options.HeroHeadline,
+                HeroSubheadline = options.HeroSubheadline,
                 BookingPolicy = "Booking requests are confirmed manually to preserve scheduling quality and a premium client experience.",
                 AboutSummary = "Nicky's Manicure & Pedicure delivers luxury manicure and pedicure services with thoughtful care, elegant finishes, and a calm, premium experience in Cape Town."
             };
@@ -182,6 +186,7 @@ public static class SeedDataExtensions
         {
             profile.Name = options.Name;
             profile.Tagline = options.Tagline;
+            profile.Description = options.Description;
             profile.Phone = options.Phone;
             profile.PhoneHref = options.PhoneHref;
             profile.Email = options.Email;
@@ -192,6 +197,9 @@ public static class SeedDataExtensions
             profile.PostalCode = options.PostalCode;
             profile.WhatsAppHref = options.WhatsAppHref;
             profile.InstagramHandle = options.InstagramHandle;
+            profile.YearsOfExperience = options.YearsOfExperience;
+            profile.HeroHeadline = options.HeroHeadline;
+            profile.HeroSubheadline = options.HeroSubheadline;
             profile.UpdatedAtUtc = DateTime.UtcNow;
         }
 

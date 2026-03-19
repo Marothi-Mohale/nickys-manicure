@@ -19,4 +19,6 @@ public interface IPublicSalonApiService
     Task<PagedResponse<FaqListItemResponse>> GetFaqItemsAsync(FaqQueryParameters query, CancellationToken cancellationToken);
 
     Task<BusinessProfileResponse?> GetBusinessProfileAsync(CancellationToken cancellationToken);
+
+    Task<IReadOnlyCollection<BusinessHourResponse>> GetBusinessHoursAsync(CancellationToken cancellationToken);
 }

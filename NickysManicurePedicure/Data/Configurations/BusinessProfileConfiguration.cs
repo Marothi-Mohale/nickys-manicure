@@ -10,6 +10,7 @@ public sealed class BusinessProfileConfiguration : IEntityTypeConfiguration<Busi
     {
         builder.Property(x => x.Name).HasMaxLength(160).IsRequired();
         builder.Property(x => x.Tagline).HasMaxLength(260).IsRequired();
+        builder.Property(x => x.Description).HasMaxLength(1500);
         builder.Property(x => x.Phone).HasMaxLength(30).IsRequired();
         builder.Property(x => x.PhoneHref).HasMaxLength(60).IsRequired();
         builder.Property(x => x.Email).HasMaxLength(200).IsRequired();
@@ -20,6 +21,9 @@ public sealed class BusinessProfileConfiguration : IEntityTypeConfiguration<Busi
         builder.Property(x => x.PostalCode).HasMaxLength(20).IsRequired();
         builder.Property(x => x.WhatsAppHref).HasMaxLength(120).IsRequired();
         builder.Property(x => x.InstagramHandle).HasMaxLength(120);
+        builder.Property(x => x.YearsOfExperience).IsRequired();
+        builder.Property(x => x.HeroHeadline).HasMaxLength(220);
+        builder.Property(x => x.HeroSubheadline).HasMaxLength(600);
         builder.Property(x => x.BookingPolicy).HasMaxLength(1000);
         builder.Property(x => x.AboutSummary).HasMaxLength(1200);
         builder.HasIndex(x => x.Email);

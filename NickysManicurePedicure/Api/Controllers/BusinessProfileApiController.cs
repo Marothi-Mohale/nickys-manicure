@@ -5,6 +5,7 @@ using NickysManicurePedicure.Dtos.Responses;
 namespace NickysManicurePedicure.Api.Controllers;
 
 [ApiController]
+[Route("api/business-profile")]
 [Route("api/business/profile")]
 [Produces("application/json")]
 public sealed class BusinessProfileApiController(IPublicSalonApiService publicSalonApiService) : ControllerBase
