@@ -1,6 +1,6 @@
-using NickysManicurePedicure.Contracts.Common;
-using NickysManicurePedicure.Contracts.Requests;
-using NickysManicurePedicure.Contracts.Responses;
+using NickysManicurePedicure.Dtos.Common;
+using NickysManicurePedicure.Dtos.Requests;
+using NickysManicurePedicure.Dtos.Responses;
 
 namespace NickysManicurePedicure.Application.Abstractions;
 

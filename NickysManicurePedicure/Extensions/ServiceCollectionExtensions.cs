@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.HttpLogging;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +7,6 @@ using Microsoft.OpenApi.Models;
 using NickysManicurePedicure.Application.Abstractions;
 using NickysManicurePedicure.Application.Services;
 using NickysManicurePedicure.Data;
-using NickysManicurePedicure.Infrastructure;
 using NickysManicurePedicure.Models.Options;
 using NickysManicurePedicure.Services;
 
@@ -70,7 +68,6 @@ public static class ServiceCollectionExtensions
     {
         services.AddRouting(options => options.LowercaseUrls = true);
         services.AddProblemDetails();
-        services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database");
         services.AddEndpointsApiExplorer();
@@ -113,6 +110,7 @@ public static class ServiceCollectionExtensions
                 };
 
                 problemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+                problemDetails.Extensions["errorCode"] = "validation_error";
 
                 return new BadRequestObjectResult(problemDetails);
             };

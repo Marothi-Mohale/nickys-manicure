@@ -1,9 +1,9 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
-using NickysManicurePedicure.Contracts.Common;
-using NickysManicurePedicure.Contracts.Requests;
-using NickysManicurePedicure.Contracts.Responses;
+using NickysManicurePedicure.Dtos.Common;
+using NickysManicurePedicure.Dtos.Requests;
+using NickysManicurePedicure.Dtos.Responses;
 using NickysManicurePedicure.Tests.Infrastructure;
 using Xunit;
 

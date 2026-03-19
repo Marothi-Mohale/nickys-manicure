@@ -10,11 +10,11 @@
         "projectUniqueName": "/workspaces/nickys-manicure/NickysManicurePedicure.Tests/NickysManicurePedicure.Tests.csproj",
         "projectName": "NickysManicurePedicure.Tests",
         "projectPath": "/workspaces/nickys-manicure/NickysManicurePedicure.Tests/NickysManicurePedicure.Tests.csproj",
-        "packagesPath": "/tmp/dotnet-home/.nuget/packages/",
+        "packagesPath": "/workspaces/nickys-manicure/.dotnet-home/.nuget/packages/",
         "outputPath": "/workspaces/nickys-manicure/NickysManicurePedicure.Tests/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/tmp/dotnet-home/.nuget/NuGet/NuGet.Config"
+          "/workspaces/nickys-manicure/.dotnet-home/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -103,12 +103,12 @@
         "projectUniqueName": "/workspaces/nickys-manicure/NickysManicurePedicure/NickysManicurePedicure.csproj",
         "projectName": "NickysManicurePedicure",
         "projectPath": "/workspaces/nickys-manicure/NickysManicurePedicure/NickysManicurePedicure.csproj",
-        "packagesPath": "/tmp/dotnet-home/.nuget/packages/",
+        "packagesPath": "/workspaces/nickys-manicure/.dotnet-home/.nuget/packages/",
         "outputPath": "/workspaces/nickys-manicure/NickysManicurePedicure/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/workspaces/nickys-manicure/NickysManicurePedicure/NuGet.Config",
-          "/tmp/dotnet-home/.nuget/NuGet/NuGet.Config"
+          "/workspaces/nickys-manicure/.dotnet-home/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"

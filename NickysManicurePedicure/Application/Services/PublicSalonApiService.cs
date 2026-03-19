@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NickysManicurePedicure.Application.Abstractions;
-using NickysManicurePedicure.Contracts.Common;
-using NickysManicurePedicure.Contracts.Requests;
-using NickysManicurePedicure.Contracts.Responses;
+using NickysManicurePedicure.Dtos.Common;
+using NickysManicurePedicure.Dtos.Requests;
+using NickysManicurePedicure.Dtos.Responses;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Extensions;
 

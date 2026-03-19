@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NickysManicurePedicure.Application.Abstractions;
-using NickysManicurePedicure.Contracts.Requests;
-using NickysManicurePedicure.Contracts.Responses;
+using NickysManicurePedicure.Dtos.Requests;
+using NickysManicurePedicure.Dtos.Responses;
 
 namespace NickysManicurePedicure.Api.Controllers;
 

@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using NickysManicurePedicure.Contracts.Common;
+using NickysManicurePedicure.Dtos.Common;
 
 namespace NickysManicurePedicure.Extensions;
 

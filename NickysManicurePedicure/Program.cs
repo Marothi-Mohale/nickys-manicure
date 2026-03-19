@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging.Console;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Extensions;
 using NickysManicurePedicure.Infrastructure;
+using NickysManicurePedicure.Middleware;
 using NickysManicurePedicure.Models.Options;
 
 namespace NickysManicurePedicure;
@@ -42,18 +43,14 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseDeveloperExceptionPage();
-        }
-        else
+        if (!app.Environment.IsDevelopment())
         {
             app.UseHsts();
         }
 
-        app.UseExceptionHandler();
         app.UseForwardedHeaders();
         app.UseHttpLogging();
+        app.UseMiddleware<ExceptionHandlingMiddleware>();
         app.UseStatusCodePagesWithReExecute("/status/{0}");
         app.UseHttpsRedirection();
         app.UseStaticFiles();
@@ -62,6 +59,10 @@ public class Program
 
         app.MapControllers();
         app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            ResponseWriter = HealthCheckResponseWriter.WriteAsync
+        });
+        app.MapHealthChecks("/api/health", new HealthCheckOptions
         {
             ResponseWriter = HealthCheckResponseWriter.WriteAsync
         });
