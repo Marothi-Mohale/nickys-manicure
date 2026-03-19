@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NickysManicurePedicure.Data;
+using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.Models.Options;
 using NickysManicurePedicure.Routing;
 using NickysManicurePedicure.Services;
@@ -25,6 +26,7 @@ public class BookingController(
         {
             Business = businessOptions.Value,
             Services = await dbContext.Services
+                .Where(x => x.Status == ContentStatus.Published)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
             BookingForm = new BookingRequestViewModel
@@ -76,6 +78,7 @@ public class BookingController(
     {
         ViewData["Description"] = "Request your manicure or pedicure appointment with Nicky's Manicure & Pedicure in Cape Town.";
         var services = await dbContext.Services
+            .Where(x => x.Status == ContentStatus.Published)
             .OrderBy(x => x.DisplayOrder)
             .ToListAsync(cancellationToken);
 
@@ -92,9 +95,11 @@ public class BookingController(
                 Business = businessOptions.Value,
                 FeaturedServices = services.Where(x => x.IsFeatured).ToList(),
                 Testimonials = await dbContext.Testimonials
+                    .Where(x => x.Status == ContentStatus.Published)
                     .OrderBy(x => x.DisplayOrder)
                     .ToListAsync(cancellationToken),
                 FaqItems = await dbContext.FaqItems
+                    .Where(x => x.Status == ContentStatus.Published)
                     .OrderBy(x => x.DisplayOrder)
                     .ToListAsync(cancellationToken),
                 BookingForm = model

@@ -11,5 +11,7 @@ public sealed class TestimonialConfiguration : IEntityTypeConfiguration<Testimon
         builder.Property(x => x.ClientName).HasMaxLength(80).IsRequired();
         builder.Property(x => x.Highlight).HasMaxLength(120).IsRequired();
         builder.Property(x => x.Review).HasMaxLength(500).IsRequired();
+        builder.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+        builder.HasIndex(x => new { x.Status, x.IsFeatured, x.DisplayOrder });
     }
 }

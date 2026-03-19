@@ -5,6 +5,7 @@ using NickysManicurePedicure.Dtos.Requests;
 using NickysManicurePedicure.Dtos.Responses;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Extensions;
+using NickysManicurePedicure.Models.Entities;
 
 namespace NickysManicurePedicure.Application.Services;
 
@@ -18,7 +19,9 @@ public sealed class PublicSalonApiService(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var servicesQuery = dbContext.Services.AsNoTracking();
+        var servicesQuery = dbContext.Services
+            .AsNoTracking()
+            .Where(x => x.Status == ContentStatus.Published);
 
         if (query.FeaturedOnly == true)
         {
@@ -49,8 +52,8 @@ public sealed class PublicSalonApiService(
                 Id = x.Id,
                 Name = x.Name,
                 Description = x.Description,
-                Duration = x.Duration,
-                PriceFrom = x.PriceFrom,
+                Duration = x.DurationLabel,
+                PriceFrom = x.PriceFromLabel,
                 IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder
             })
@@ -65,10 +68,10 @@ public sealed class PublicSalonApiService(
 
         var testimonialsQuery = (query.SortBy, query.SortDirection) switch
         {
-            ("clientName", "desc") => dbContext.Testimonials.AsNoTracking().OrderByDescending(x => x.ClientName).ThenBy(x => x.DisplayOrder),
-            ("clientName", _) => dbContext.Testimonials.AsNoTracking().OrderBy(x => x.ClientName).ThenBy(x => x.DisplayOrder),
-            ("displayOrder", "desc") => dbContext.Testimonials.AsNoTracking().OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.ClientName),
-            _ => dbContext.Testimonials.AsNoTracking().OrderBy(x => x.DisplayOrder).ThenBy(x => x.ClientName)
+            ("clientName", "desc") => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderByDescending(x => x.ClientName).ThenBy(x => x.DisplayOrder),
+            ("clientName", _) => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderBy(x => x.ClientName).ThenBy(x => x.DisplayOrder),
+            ("displayOrder", "desc") => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.ClientName),
+            _ => dbContext.Testimonials.AsNoTracking().Where(x => x.Status == ContentStatus.Published).OrderBy(x => x.DisplayOrder).ThenBy(x => x.ClientName)
         };
 
         return await testimonialsQuery
@@ -91,7 +94,7 @@ public sealed class PublicSalonApiService(
 
         var galleryQuery = dbContext.GalleryItems
             .AsNoTracking()
-            .Where(x => x.IsPublished);
+            .Where(x => x.Status == ContentStatus.Published);
 
         if (!string.IsNullOrWhiteSpace(query.Category))
         {
@@ -108,8 +111,8 @@ public sealed class PublicSalonApiService(
         {
             ("title", "desc") => galleryQuery.OrderByDescending(x => x.Title).ThenBy(x => x.DisplayOrder),
             ("title", _) => galleryQuery.OrderBy(x => x.Title).ThenBy(x => x.DisplayOrder),
-            ("createdUtc", "desc") => galleryQuery.OrderByDescending(x => x.CreatedUtc).ThenBy(x => x.DisplayOrder),
-            ("createdUtc", _) => galleryQuery.OrderBy(x => x.CreatedUtc).ThenBy(x => x.DisplayOrder),
+            ("createdUtc", "desc") => galleryQuery.OrderByDescending(x => x.CreatedAtUtc).ThenBy(x => x.DisplayOrder),
+            ("createdUtc", _) => galleryQuery.OrderBy(x => x.CreatedAtUtc).ThenBy(x => x.DisplayOrder),
             ("displayOrder", "desc") => galleryQuery.OrderByDescending(x => x.DisplayOrder).ThenBy(x => x.Title),
             _ => galleryQuery.OrderBy(x => x.DisplayOrder).ThenBy(x => x.Title)
         };
@@ -126,7 +129,7 @@ public sealed class PublicSalonApiService(
                 AltText = x.AltText,
                 IsFeatured = x.IsFeatured,
                 DisplayOrder = x.DisplayOrder,
-                CreatedUtc = x.CreatedUtc
+                CreatedUtc = x.CreatedAtUtc
             })
             .ToPagedResponseAsync(query.Page, query.PageSize, cancellationToken);
     }
@@ -137,7 +140,9 @@ public sealed class PublicSalonApiService(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        var faqQuery = dbContext.FaqItems.AsNoTracking();
+        var faqQuery = dbContext.FaqItems
+            .AsNoTracking()
+            .Where(x => x.Status == ContentStatus.Published);
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {

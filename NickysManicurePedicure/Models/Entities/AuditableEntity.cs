@@ -1,0 +1,7 @@
+namespace NickysManicurePedicure.Models.Entities;
+
+public abstract class AuditableEntity : BaseEntity
+{
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
+}

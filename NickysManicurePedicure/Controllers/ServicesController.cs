@@ -21,6 +21,7 @@ public class ServicesController(
         {
             Business = businessOptions.Value,
             Services = await dbContext.Services
+                .Where(x => x.Status == ContentStatus.Published)
                 .OrderBy(x => x.DisplayOrder)
                 .ToListAsync(cancellationToken),
             BookingForm = new BookingRequestViewModel

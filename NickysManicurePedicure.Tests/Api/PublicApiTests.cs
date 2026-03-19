@@ -67,7 +67,7 @@ public sealed class PublicApiTests : IClassFixture<TestApplicationFactory>
 
         var payload = await response.Content.ReadFromJsonAsync<ContactInquiryAcceptedResponse>();
         Assert.NotNull(payload);
-        Assert.True(payload.InquiryId > 0);
+        Assert.True(payload.ContactInquiryId > 0);
     }
 
     [Fact]

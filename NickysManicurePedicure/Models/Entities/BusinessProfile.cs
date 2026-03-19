@@ -1,8 +1,7 @@
 namespace NickysManicurePedicure.Models.Entities;
 
-public class BusinessProfile
+public class BusinessProfile : AuditableEntity
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Tagline { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
@@ -17,7 +16,6 @@ public class BusinessProfile
     public string? InstagramHandle { get; set; }
     public string? BookingPolicy { get; set; }
     public string? AboutSummary { get; set; }
-    public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;
 
     public ICollection<BusinessHour> BusinessHours { get; set; } = [];
 }

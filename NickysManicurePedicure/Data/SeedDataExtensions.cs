@@ -7,36 +7,43 @@ namespace NickysManicurePedicure.Data;
 
 public static class SeedDataExtensions
 {
-    public static IReadOnlyList<SalonService> ServicesSeed =>
+    public static IReadOnlyList<ServiceCategory> ServiceCategoriesSeed =>
     [
-        new() { Id = 1, Name = "Luxury Signature Manicure", Description = "Precision cuticle care, nail shaping, hydration ritual, and a high-gloss polish finish.", Duration = "60 min", PriceFrom = "From R280", IsFeatured = true, DisplayOrder = 1 },
-        new() { Id = 2, Name = "Luxury Signature Pedicure", Description = "An indulgent pedicure with soak, exfoliation, expert nail care, and beautifully finished toes.", Duration = "75 min", PriceFrom = "From R340", IsFeatured = true, DisplayOrder = 2 },
-        new() { Id = 3, Name = "Gel Polish Refresh", Description = "Long-wear gel application for women who want a polished look that lasts through a busy week.", Duration = "50 min", PriceFrom = "From R250", IsFeatured = true, DisplayOrder = 3 },
-        new() { Id = 4, Name = "Nail Art Detail Work", Description = "Refined custom accents and elevated design details tailored to your occasion and personal style.", Duration = "30 - 45 min add-on", PriceFrom = "From R120", IsFeatured = false, DisplayOrder = 4 },
-        new() { Id = 5, Name = "Bridal or Occasion Nail Prep", Description = "Curated manicure and pedicure preparation for weddings, events, and special photo-ready moments.", Duration = "By consultation", PriceFrom = "Custom quote", IsFeatured = false, DisplayOrder = 5 },
-        new() { Id = 6, Name = "Restorative Nail Care Session", Description = "A gentle treatment-focused appointment for tired nails needing nourishment, reshaping, and recovery.", Duration = "45 min", PriceFrom = "From R220", IsFeatured = false, DisplayOrder = 6 }
+        new() { Id = 1, Name = "Manicure", Slug = "manicure", Description = "Luxury manicure services focused on precision, care, and elegant finish work.", Status = ContentStatus.Published, DisplayOrder = 1 },
+        new() { Id = 2, Name = "Pedicure", Slug = "pedicure", Description = "Premium pedicure services for polished, restorative, sandal-ready care.", Status = ContentStatus.Published, DisplayOrder = 2 },
+        new() { Id = 3, Name = "Enhancements", Slug = "enhancements", Description = "Special occasion and finishing add-ons that elevate your final look.", Status = ContentStatus.Published, DisplayOrder = 3 }
+    ];
+
+    public static IReadOnlyList<Service> ServicesSeed =>
+    [
+        new() { Id = 1, ServiceCategoryId = 1, Name = "Luxury Signature Manicure", Slug = "luxury-signature-manicure", Description = "Precision cuticle care, nail shaping, hydration ritual, and a high-gloss polish finish.", DurationLabel = "60 min", PriceFromLabel = "From R280", IsFeatured = true, Status = ContentStatus.Published, DisplayOrder = 1 },
+        new() { Id = 2, ServiceCategoryId = 2, Name = "Luxury Signature Pedicure", Slug = "luxury-signature-pedicure", Description = "An indulgent pedicure with soak, exfoliation, expert nail care, and beautifully finished toes.", DurationLabel = "75 min", PriceFromLabel = "From R340", IsFeatured = true, Status = ContentStatus.Published, DisplayOrder = 2 },
+        new() { Id = 3, ServiceCategoryId = 1, Name = "Gel Polish Refresh", Slug = "gel-polish-refresh", Description = "Long-wear gel application for women who want a polished look that lasts through a busy week.", DurationLabel = "50 min", PriceFromLabel = "From R250", IsFeatured = true, Status = ContentStatus.Published, DisplayOrder = 3 },
+        new() { Id = 4, ServiceCategoryId = 3, Name = "Nail Art Detail Work", Slug = "nail-art-detail-work", Description = "Refined custom accents and elevated design details tailored to your occasion and personal style.", DurationLabel = "30 - 45 min add-on", PriceFromLabel = "From R120", IsFeatured = false, Status = ContentStatus.Published, DisplayOrder = 4 },
+        new() { Id = 5, ServiceCategoryId = 3, Name = "Bridal or Occasion Nail Prep", Slug = "bridal-or-occasion-nail-prep", Description = "Curated manicure and pedicure preparation for weddings, events, and special photo-ready moments.", DurationLabel = "By consultation", PriceFromLabel = "Custom quote", IsFeatured = false, Status = ContentStatus.Published, DisplayOrder = 5 },
+        new() { Id = 6, ServiceCategoryId = 1, Name = "Restorative Nail Care Session", Slug = "restorative-nail-care-session", Description = "A gentle treatment-focused appointment for tired nails needing nourishment, reshaping, and recovery.", DurationLabel = "45 min", PriceFromLabel = "From R220", IsFeatured = false, Status = ContentStatus.Published, DisplayOrder = 6 }
     ];
 
     public static IReadOnlyList<Testimonial> TestimonialsSeed =>
     [
-        new() { Id = 1, ClientName = "Lerato M.", Highlight = "Elegant every time", Review = "Nicky is warm, professional, and incredibly precise. My nails always look elegant and last beautifully.", DisplayOrder = 1 },
-        new() { Id = 2, ClientName = "Ayanda P.", Highlight = "Luxury and consistency", Review = "The experience feels premium from the moment you arrive. Clean, calm, and consistently excellent results.", DisplayOrder = 2 },
-        new() { Id = 3, ClientName = "Zanele R.", Highlight = "Trusted for special occasions", Review = "She prepared my nails for an event and I felt polished, feminine, and completely looked after.", DisplayOrder = 3 }
+        new() { Id = 1, ClientName = "Lerato M.", Highlight = "Elegant every time", Review = "Nicky is warm, professional, and incredibly precise. My nails always look elegant and last beautifully.", Status = ContentStatus.Published, IsFeatured = true, DisplayOrder = 1 },
+        new() { Id = 2, ClientName = "Ayanda P.", Highlight = "Luxury and consistency", Review = "The experience feels premium from the moment you arrive. Clean, calm, and consistently excellent results.", Status = ContentStatus.Published, IsFeatured = true, DisplayOrder = 2 },
+        new() { Id = 3, ClientName = "Zanele R.", Highlight = "Trusted for special occasions", Review = "She prepared my nails for an event and I felt polished, feminine, and completely looked after.", Status = ContentStatus.Published, IsFeatured = false, DisplayOrder = 3 }
     ];
 
     public static IReadOnlyList<FaqItem> FaqSeed =>
     [
-        new() { Id = 1, Question = "Do I need to book in advance?", Answer = "Advance booking is recommended, especially for Fridays, Saturdays, and special occasion appointments.", DisplayOrder = 1 },
-        new() { Id = 2, Question = "Can I request a preferred date or time?", Answer = "Yes. Share your ideal appointment time in the booking form and we will confirm availability as quickly as possible.", DisplayOrder = 2 },
-        new() { Id = 3, Question = "Do you offer custom nail art?", Answer = "Yes. Subtle luxury finishes and bespoke nail art details can be discussed when you submit your request.", DisplayOrder = 3 },
-        new() { Id = 4, Question = "Where is the salon located?", Answer = "We are based at 72 Main Road, Mowbray, Cape Town, making visits easy for clients across the city.", DisplayOrder = 4 }
+        new() { Id = 1, Question = "Do I need to book in advance?", Answer = "Advance booking is recommended, especially for Fridays, Saturdays, and special occasion appointments.", Status = ContentStatus.Published, DisplayOrder = 1 },
+        new() { Id = 2, Question = "Can I request a preferred date or time?", Answer = "Yes. Share your ideal appointment time in the booking form and we will confirm availability as quickly as possible.", Status = ContentStatus.Published, DisplayOrder = 2 },
+        new() { Id = 3, Question = "Do you offer custom nail art?", Answer = "Yes. Subtle luxury finishes and bespoke nail art details can be discussed when you submit your request.", Status = ContentStatus.Published, DisplayOrder = 3 },
+        new() { Id = 4, Question = "Where is the salon located?", Answer = "We are based at 72 Main Road, Mowbray, Cape Town, making visits easy for clients across the city.", Status = ContentStatus.Published, DisplayOrder = 4 }
     ];
 
     public static IReadOnlyList<GalleryItem> GallerySeed =>
     [
-        new() { Id = 1, Title = "Signature Nude Gloss Set", Description = "Luxury nude manicure styling with refined finish work.", Category = "Manicure", ImageUrl = "/images/gallery/signature-nude-gloss.jpg", ThumbnailUrl = "/images/gallery/thumbs/signature-nude-gloss.jpg", AltText = "Elegant nude manicure with glossy finish", IsFeatured = true, IsPublished = true, DisplayOrder = 1, CreatedUtc = DateTime.UtcNow.AddDays(-30) },
-        new() { Id = 2, Title = "Soft Bridal Detail", Description = "A bridal-ready set with delicate detail accents and clean structure.", Category = "Bridal", ImageUrl = "/images/gallery/soft-bridal-detail.jpg", ThumbnailUrl = "/images/gallery/thumbs/soft-bridal-detail.jpg", AltText = "Bridal nail styling with soft luxury detail", IsFeatured = true, IsPublished = true, DisplayOrder = 2, CreatedUtc = DateTime.UtcNow.AddDays(-25) },
-        new() { Id = 3, Title = "Polished Pedicure Finish", Description = "High-end pedicure presentation for sandal-ready confidence.", Category = "Pedicure", ImageUrl = "/images/gallery/polished-pedicure-finish.jpg", ThumbnailUrl = "/images/gallery/thumbs/polished-pedicure-finish.jpg", AltText = "Luxury pedicure finish in neutral tones", IsFeatured = false, IsPublished = true, DisplayOrder = 3, CreatedUtc = DateTime.UtcNow.AddDays(-20) }
+        new() { Id = 1, Title = "Signature Nude Gloss Set", Description = "Luxury nude manicure styling with refined finish work.", Category = "Manicure", ImageUrl = "/images/gallery/signature-nude-gloss.jpg", ThumbnailUrl = "/images/gallery/thumbs/signature-nude-gloss.jpg", AltText = "Elegant nude manicure with glossy finish", IsFeatured = true, Status = ContentStatus.Published, DisplayOrder = 1 },
+        new() { Id = 2, Title = "Soft Bridal Detail", Description = "A bridal-ready set with delicate detail accents and clean structure.", Category = "Bridal", ImageUrl = "/images/gallery/soft-bridal-detail.jpg", ThumbnailUrl = "/images/gallery/thumbs/soft-bridal-detail.jpg", AltText = "Bridal nail styling with soft luxury detail", IsFeatured = true, Status = ContentStatus.Published, DisplayOrder = 2 },
+        new() { Id = 3, Title = "Polished Pedicure Finish", Description = "High-end pedicure presentation for sandal-ready confidence.", Category = "Pedicure", ImageUrl = "/images/gallery/polished-pedicure-finish.jpg", ThumbnailUrl = "/images/gallery/thumbs/polished-pedicure-finish.jpg", AltText = "Luxury pedicure finish in neutral tones", IsFeatured = false, Status = ContentStatus.Published, DisplayOrder = 3 }
     ];
 
     public static async Task EnsureDatabaseReadyAsync(this IServiceProvider services)
@@ -61,6 +68,7 @@ public static class SeedDataExtensions
                 return;
             }
 
+            await SeedMissingAsync(dbContext.ServiceCategories, ServiceCategoriesSeed, item => item.Id, "service categories", logger);
             await SeedMissingAsync(dbContext.Services, ServicesSeed, item => item.Id, "services", logger);
             await SeedMissingAsync(dbContext.Testimonials, TestimonialsSeed, item => item.Id, "testimonials", logger);
             await SeedMissingAsync(dbContext.FaqItems, FaqSeed, item => item.Id, "faq items", logger);
@@ -179,7 +187,7 @@ public static class SeedDataExtensions
             profile.PostalCode = options.PostalCode;
             profile.WhatsAppHref = options.WhatsAppHref;
             profile.InstagramHandle = options.InstagramHandle;
-            profile.UpdatedUtc = DateTime.UtcNow;
+            profile.UpdatedAtUtc = DateTime.UtcNow;
         }
 
         var seededHours = BuildBusinessHourSeed();

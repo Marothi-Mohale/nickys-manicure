@@ -17,31 +17,37 @@ public sealed class InquiryApiCommandService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var inquiry = new Inquiry
+        var matchedService = await dbContext.Services
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.Name == request.PreferredService.Trim(),
+                cancellationToken);
+
+        var bookingRequest = new BookingRequest
         {
-            InquiryType = InquiryType.Booking,
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
-            PreferredService = request.PreferredService.Trim(),
-            PreferredDate = request.PreferredDate,
-            PreferredTime = request.PreferredTime,
+            RequestedServiceName = request.PreferredService.Trim(),
+            ServiceId = matchedService?.Id,
+            PreferredDate = request.PreferredDate!.Value,
+            PreferredTime = request.PreferredTime!.Value,
             Message = request.Message.Trim(),
             SourcePage = string.IsNullOrWhiteSpace(request.SourcePage) ? "Api" : request.SourcePage.Trim()
         };
 
-        dbContext.Inquiries.Add(inquiry);
+        dbContext.BookingRequests.Add(bookingRequest);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Created booking inquiry {InquiryId} for {Email} from API source {SourcePage}.",
-            inquiry.Id,
-            inquiry.Email,
-            inquiry.SourcePage);
+            "Created booking request {BookingRequestId} for {Email} from API source {SourcePage}.",
+            bookingRequest.Id,
+            bookingRequest.Email,
+            bookingRequest.SourcePage);
 
         return new BookingRequestAcceptedResponse
         {
-            InquiryId = inquiry.Id,
+            BookingRequestId = bookingRequest.Id,
             Message = "Your booking request has been received. Our team will follow up shortly."
         };
     }
@@ -52,28 +58,28 @@ public sealed class InquiryApiCommandService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var inquiry = new Inquiry
+        var contactInquiry = new ContactInquiry
         {
-            InquiryType = InquiryType.General,
             FullName = request.FullName.Trim(),
             Email = request.Email.Trim(),
             PhoneNumber = request.PhoneNumber.Trim(),
+            Subject = "General website inquiry",
             Message = request.Message.Trim(),
             SourcePage = string.IsNullOrWhiteSpace(request.SourcePage) ? "Api" : request.SourcePage.Trim()
         };
 
-        dbContext.Inquiries.Add(inquiry);
+        dbContext.ContactInquiries.Add(contactInquiry);
         await dbContext.SaveChangesAsync(cancellationToken);
 
         logger.LogInformation(
-            "Created contact inquiry {InquiryId} for {Email} from API source {SourcePage}.",
-            inquiry.Id,
-            inquiry.Email,
-            inquiry.SourcePage);
+            "Created contact inquiry {ContactInquiryId} for {Email} from API source {SourcePage}.",
+            contactInquiry.Id,
+            contactInquiry.Email,
+            contactInquiry.SourcePage);
 
         return new ContactInquiryAcceptedResponse
         {
-            InquiryId = inquiry.Id,
+            ContactInquiryId = contactInquiry.Id,
             Message = "Your inquiry has been received. We will get back to you as soon as possible."
         };
     }

@@ -22,6 +22,7 @@ public sealed class BusinessProfileConfiguration : IEntityTypeConfiguration<Busi
         builder.Property(x => x.InstagramHandle).HasMaxLength(120);
         builder.Property(x => x.BookingPolicy).HasMaxLength(1000);
         builder.Property(x => x.AboutSummary).HasMaxLength(1200);
+        builder.HasIndex(x => x.Email);
 
         builder.HasMany(x => x.BusinessHours)
             .WithOne(x => x.BusinessProfile)

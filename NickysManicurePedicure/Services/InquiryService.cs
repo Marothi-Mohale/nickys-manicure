@@ -16,32 +16,32 @@ public class InquiryService(
 
         try
         {
-            var inquiry = new Inquiry
+            var contactInquiry = new ContactInquiry
             {
-                InquiryType = model.InquiryType,
                 FullName = model.FullName.Trim(),
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
+                Subject = model.InquiryType == InquiryType.Booking
+                    ? "Booking-related website inquiry"
+                    : "General website inquiry",
                 Message = model.Message.Trim(),
                 SourcePage = model.SourcePage.Trim()
             };
 
-            dbContext.Inquiries.Add(inquiry);
+            dbContext.ContactInquiries.Add(contactInquiry);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             logger.LogInformation(
-                "Saved {InquiryType} inquiry {InquiryId} from {Email} via {SourcePage} at {CreatedUtc}.",
-                inquiry.InquiryType,
-                inquiry.Id,
-                inquiry.Email,
-                inquiry.SourcePage,
-                inquiry.CreatedUtc);
+                "Saved contact inquiry {ContactInquiryId} from {Email} via {SourcePage} at {CreatedAtUtc}.",
+                contactInquiry.Id,
+                contactInquiry.Email,
+                contactInquiry.SourcePage,
+                contactInquiry.CreatedAtUtc);
 
-            var message = inquiry.InquiryType == InquiryType.Booking
-                ? "Your appointment request has been received. We will contact you shortly to confirm the details."
-                : "Your message has been received. We will get back to you as soon as possible.";
-
-            return new SubmissionResult(true, message, inquiry.Id);
+            return new SubmissionResult(
+                true,
+                "Your message has been received. We will get back to you as soon as possible.",
+                contactInquiry.Id);
         }
         catch (Exception ex)
         {

@@ -1,9 +1,10 @@
 namespace NickysManicurePedicure.Models.Entities;
 
-public enum InquiryStatus
+public enum BookingRequestStatus
 {
-    New = 1,
+    Pending = 1,
     Contacted = 2,
     Confirmed = 3,
-    Closed = 4
+    Completed = 4,
+    Cancelled = 5
 }

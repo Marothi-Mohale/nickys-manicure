@@ -1,8 +1,7 @@
 namespace NickysManicurePedicure.Models.Entities;
 
-public class BusinessHour
+public class BusinessHour : BaseEntity
 {
-    public int Id { get; set; }
     public int BusinessProfileId { get; set; }
     public DayOfWeek DayOfWeek { get; set; }
     public bool IsClosed { get; set; }

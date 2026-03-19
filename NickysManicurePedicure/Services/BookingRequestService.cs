@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using NickysManicurePedicure.Data;
 using NickysManicurePedicure.Models.Entities;
 using NickysManicurePedicure.ViewModels;
@@ -16,34 +17,41 @@ public class BookingRequestService(
 
         try
         {
-            var inquiry = new Inquiry
+            var requestedServiceName = model.PreferredService.Trim();
+            var matchedService = await dbContext.Services
+                .AsNoTracking()
+                .FirstOrDefaultAsync(
+                    x => x.Name == requestedServiceName,
+                    cancellationToken);
+
+            var bookingRequest = new BookingRequest
             {
-                InquiryType = InquiryType.Booking,
                 FullName = model.FullName.Trim(),
                 Email = model.Email.Trim(),
                 PhoneNumber = model.PhoneNumber.Trim(),
-                PreferredService = model.PreferredService.Trim(),
-                PreferredDate = model.PreferredDate,
-                PreferredTime = model.PreferredTime,
+                RequestedServiceName = requestedServiceName,
+                ServiceId = matchedService?.Id,
+                PreferredDate = model.PreferredDate!.Value,
+                PreferredTime = model.PreferredTime!.Value,
                 Message = model.Message.Trim(),
                 SourcePage = model.SourcePage.Trim()
             };
 
-            dbContext.Inquiries.Add(inquiry);
+            dbContext.BookingRequests.Add(bookingRequest);
             await dbContext.SaveChangesAsync(cancellationToken);
 
             logger.LogInformation(
-                "Saved booking request {InquiryId} for {Email} from {SourcePage} on {PreferredDate} at {PreferredTime}.",
-                inquiry.Id,
-                inquiry.Email,
-                inquiry.SourcePage,
-                inquiry.PreferredDate,
-                inquiry.PreferredTime);
+                "Saved booking request {BookingRequestId} for {Email} from {SourcePage} on {PreferredDate} at {PreferredTime}.",
+                bookingRequest.Id,
+                bookingRequest.Email,
+                bookingRequest.SourcePage,
+                bookingRequest.PreferredDate,
+                bookingRequest.PreferredTime);
 
             return new SubmissionResult(
                 true,
                 "Your appointment request is in. We will confirm availability and follow up with you shortly.",
-                inquiry.Id);
+                bookingRequest.Id);
         }
         catch (Exception ex)
         {
